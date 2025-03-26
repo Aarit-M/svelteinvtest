@@ -40,7 +40,7 @@
     }
 </script>
   
-<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground grid grid-cols-3 items-center px-4 py-3 shadow-md">
+<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center justify-between px-4 py-3 shadow-md">
   <div class="flex items-center">
     <img 
       src={logo} 
@@ -51,7 +51,7 @@
     <h1 class="text-xl font-semibold sm:hidden">Inventory</h1>
   </div>
   
-  <div class="flex items-center justify-center gap-3">
+  <div class="flex items-center gap-3 absolute left-1/2 transform -translate-x-1/2">
     <div class="relative">
       <Input 
         type="text"
@@ -64,7 +64,7 @@
     </div>
   </div>
   
-  <div class="flex items-center justify-end gap-3">
+  <div class="flex items-center gap-3">
     <ThemeToggle />
     <Button
       variant="ghost"
