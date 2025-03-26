@@ -76,3 +76,40 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Drag and drop styles inspired by Atlas Kit */
+.svelte-dnd-draggable {
+  cursor: grab;
+}
+
+.svelte-dnd-dragging {
+  cursor: grabbing;
+  opacity: 0.5;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.drag-over {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  outline: 2px dashed #4caf50;
+  outline-offset: -2px;
+}
+
+.drag-invalid {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+  outline: 2px dashed #f44336;
+  outline-offset: -2px;
+}
+
+/* Animation for post-drop flash effect */
+@keyframes post-drop-flash {
+  0% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.post-drop-flash {
+  animation: post-drop-flash 0.5s ease-out;
+}

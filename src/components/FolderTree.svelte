@@ -3,7 +3,7 @@
     import Icon from '@iconify/svelte';
     import * as Accordion from "$lib/components/ui/accordion";
     import { Tooltip, TooltipContent, TooltipTrigger } from '$lib/components/ui/tooltip';
-    import { draggable, droppable, type DragDropState } from '$lib/index.js';
+    import { draggable, droppable, type DragDropState } from '$lib/index';
     import type { Container, Item } from '$lib/types';
     import { cn } from '$lib/utils';
   
@@ -122,7 +122,7 @@
                     <Tooltip>
                       <TooltipTrigger>
                         <span class="info-icon">
-                          <Icon icon="material-symbols:information-outline" size={12} class="text-gray-500" />
+                          <Icon icon="material-symbols:information-outline" width={12} height={12} class="text-gray-500" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -167,7 +167,7 @@
               <Tooltip>
                 <TooltipTrigger>
                   <span class="info-icon">
-                    <Icon icon="material-symbols:information-outline" size={12} class="text-gray-500" />
+                    <Icon icon="material-symbols:information-outline" width={12} height={12} class="text-gray-500" />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
