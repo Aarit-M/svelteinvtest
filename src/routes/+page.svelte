@@ -434,7 +434,7 @@
   <title>Team 2554 Inventory Management</title>
   <style>
   :root {
-    --background: #181818;
+    --background: #161616; /* Slightly darker than screenshot */
     --primary: #1e1e1e;
     --primary-hover: #2a2e33;
     --text-primary: #ffffff;
@@ -443,14 +443,14 @@
     --disabled-bg: #2a2e33;
     --disabled-border: #383838;
     --disabled-text: #5a5a5a;
-    --header-bg: #181818;
-    --sidebar-bg: #202020;
+    --header-bg: #161616; /* Matches background */
+    --sidebar-bg: #1e1e1e; /* Matches dark sidebar in screenshot */
     --selected-bg: #2f2f2f;
     --table-header-bg: #252525;
     --table-row-bg: #1e1e1e;
-    --table-alternate-row-bg: #2a2a2a;
-    --button-bg: #2a2e33;
-    --button-hover-bg: #383d42;
+    --table-alternate-row-bg: #1a1a1a; /* Slightly darker alternate row */
+    --button-bg: #1e1e1e; /* Matches sidebar */
+    --button-hover-bg: #2a2e33;
     --border-color: #2a2e33;
     --shadow-color: rgba(0, 0, 0, 0.3);
   }
@@ -560,7 +560,6 @@
     cursor: not-allowed;
   }
 </style>
-
 </svelte:head>
 
 <div class="app-container">
