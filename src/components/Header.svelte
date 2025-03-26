@@ -68,24 +68,48 @@
 
   <!-- Right: Buttons -->
   <div class="flex items-center gap-2">
-    <Button
-      variant="outline"
-      size="sm"
-      on:click={handleAddItem}
-      class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
-    >
-      <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
-      <span>Add Item</span>
-    </Button>
-    <Button
-      variant="outline"
-      size="sm"
-      on:click={handleAddLocation}
-      class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
-    >
-      <Icon icon="material-symbols:create-new-folder" class="h-4 w-4 mr-1" />
-      <span>Add Location</span>
-    </Button>
+    {#if selectedItems.length > 0}
+      <!-- Selection Actions -->
+      <span class="mr-1 text-sm">{selectedItems.length} Selected</span>
+      <Button 
+        variant="destructive"
+        size="sm"
+        on:click={handleDelete}
+        class="h-9"
+      >
+        <Icon icon="material-symbols:delete" class="h-4 w-4 mr-1" />
+        <span class="hidden md:inline">Delete</span>
+      </Button>
+      <Button 
+        variant="outline"
+        size="sm"
+        on:click={handleGroupIntoLocation}
+        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+      >
+        <Icon icon="material-symbols:folder-add" class="h-4 w-4 mr-1" />
+        <span class="hidden md:inline">Group</span>
+      </Button>
+    {:else}
+      <!-- Normal Buttons -->
+      <Button
+        variant="outline"
+        size="sm"
+        on:click={handleAddItem}
+        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+      >
+        <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
+        <span>Add Item</span>
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        on:click={handleAddLocation}
+        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+      >
+        <Icon icon="material-symbols:create-new-folder" class="h-4 w-4 mr-1" />
+        <span>Add Location</span>
+      </Button>
+    {/if}
     <Button
       variant="ghost"
       size="icon"
