@@ -1,56 +1,45 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { X, FolderPlus } from 'lucide-svelte';
-    import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '$lib/components/ui/dialog';
+    import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '$lib/components/ui/dialog';
     import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';
     import { Label } from '$lib/components/ui/label';
-    import { cn } from '$lib/utils';
-    import type { Container } from '$lib/types';
     import { v4 as uuidv4 } from 'uuid';
     import { toast } from 'svelte-sonner';
-  
+    
     export let open: boolean;
     export let onClose: () => void;
     export let onAddLocation: (location: Partial<Container>) => void;
-    export let containers: Container[] = [];
-  
+    
     let locationName = '';
-  
-    function resetForm() {
-      locationName = '';
+    let imageSrc: string | undefined = undefined;
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                imageSrc = reader.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
     }
-  
+    
     function handleSubmit() {
-      if (!locationName) {
-        toast({
-          title: "Error",
-          description: "Location name is required"
-        });
-        return;
-      }
-  
-      const newLocation: Partial<Container> = {
-        id: uuidv4(),
-        containerName: locationName,
-        containerLocation: { path: '/' + locationName },
-        items: [],
-        children: []
-      };
-  
-      onAddLocation(newLocation);
-      resetForm();
-      onClose();
-      
-      toast({
-        title: "Success",
-        description: "Location added successfully"
-      });
+        if (!locationName) {
+            toast({ title: "Error", description: "Location name is required" });
+            return;
+        }
+    
+        const newLocation: Partial<Container> = {
+            id: uuidv4(),
+            containerName: locationName,
+            containerLocation: { path: '/' + locationName },
+            image: imageSrc
+        };
+    
+        onAddLocation(newLocation);
+        onClose();
     }
-  
-    onMount(() => {
-      resetForm();
-    });
 </script>
   
 <Dialog {open} onOpenChange={(isOpen) => {
