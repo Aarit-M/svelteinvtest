@@ -33,7 +33,19 @@
     }
   
     // Helper function to recursively render containers
-    function renderContainers(containers: Container[], level = 0) {
+    function renderContainers(containers: Container[], level = 0): Array<{
+      container: Container;
+      isSelected: boolean;
+      level: number;
+      baseIcon: string;
+      children: Array<{
+        container: Container;
+        isSelected: boolean;
+        level: number;
+        baseIcon: string;
+        children: any[];
+      }> | null;
+    }> {
       return containers
         .map(container => {
           // Get icon based on level
@@ -61,10 +73,22 @@
             isSelected,
             level,
             baseIcon,
-            children: container.children ? renderContainers(container.children, level + 1) : []
+            children: container.children ? renderContainers(container.children, level + 1) : null
           };
         })
-        .filter(Boolean);
+        .filter(Boolean) as Array<{
+          container: Container;
+          isSelected: boolean;
+          level: number;
+          baseIcon: string;
+          children: Array<{
+            container: Container;
+            isSelected: boolean;
+            level: number;
+            baseIcon: string;
+            children: any[];
+          }> | null;
+        }>;
     }
   
     $: renderedContainers = renderContainers(containers);
@@ -80,7 +104,7 @@
       onClose();
     }
   }}>
-    <DialogContent class="sm:max-w-md animate-fade-in">
+    <DialogContent class="sm:max-w-md animate-fade-in bg-white dark:bg-gray-950">
       <DialogHeader>
         <DialogTitle class="text-center text-xl flex items-center justify-center gap-2">
           <FolderPlus class="h-5 w-5" />

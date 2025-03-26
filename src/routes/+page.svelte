@@ -3,7 +3,8 @@
     import { toast } from 'svelte-sonner';
     import type { Item, Container } from '$lib/types';
     import { onMount } from 'svelte';
-    import ItemDetailsModal from '../components/EditItemModal.svelte';
+    import ItemDetailsModal from '../components/ItemDetailsModal.svelte';
+    import EditItemModal from '../components/EditItemModal.svelte';
     import AddItemModal from '../components/AddItemModal.svelte';
     import HelpModal from '../components/HelpModal.svelte';
     import GroupItemsModal from '../components/GroupItemsModal.svelte';
@@ -12,22 +13,28 @@
     import Header from '../components/Header.svelte';
     import AddItemButton from '../components/AddItemButton.svelte';
     import InventoryTable from '../components/InventoryTable.svelte';
+    import PhotoViewModal from '../components/PhotoViewModal.svelte';
     import Icon from '@iconify/svelte';
+    import { writable } from 'svelte/store';
+    import { browser } from '$app/environment';
     const logo = '/2554_logo.png';
 
     // State variables
     let activeItem: Item | null = null;
     let showItemDetails = false;
+    let showEditModal = false;
     let showAddItemModal = false;
     let showNewLocationModal = false;
     let showGroupModal = false;
     let showHelpModal = false;
+    let showPhotoModal = false;
     let selectedItems: string[] = [];
     let searchQuery = '';
     let selectedContainer: string | null = null;
     let containers: Container[] = [];
     let filteredItems: Item[] = [];
     let allItemsSelected = false;
+    let currentPhotoItem: Item | null = null;
   
     // Mock data for containers and items
     const mockContainers: Container[] = [
@@ -394,9 +401,21 @@
     showItemDetails = true;
   }
   
+  // View item photo
+  function viewItemPhoto(item: Item) {
+    currentPhotoItem = item;
+    showPhotoModal = true;
+  }
+  
+  // Handle item click from FolderTree
+  function handleItemClick(item: Item) {
+    viewItemDetails(item);
+  }
+  
   // Check if a container should show the info icon
   function shouldShowInfoIcon(id: string): boolean {
-    return ['kearnys-desk', 'back-corner-shelf', 'box-1', 'box-2', 'box-3', 'small-cabinet'].includes(id);
+    const container = findContainerById(containers, id);
+    return Boolean(container?.image || container?.description);
   }
 
   // Check if item is selected
@@ -615,15 +634,51 @@ input::placeholder {
             duration: 3000,
           });
         }}
+        onViewAllItems={() => {
+          // Display all items from all containers
+          selectedContainer = null;
+          const allItems: Item[] = [];
+          
+          // Recursive function to gather all items from all containers
+          function collectItems(containersArray: Container[]) {
+            if (!containersArray || !containersArray.length) return;
+            
+            for (const container of containersArray) {
+              if (container.items && container.items.length) {
+                allItems.push(...container.items);
+              }
+              
+              if (container.children && container.children.length) {
+                collectItems(container.children);
+              }
+            }
+          }
+          
+          collectItems(containers);
+          filteredItems = allItems;
+        }}
+        onItemClick={handleItemClick}
       />
     </div>
   
     <!-- Main content area -->
     <div class="content-area">
-      <!-- Replace the table header and body with InventoryTable -->
+      <!-- Table header showing current selected location -->
+      <div class="table-header mb-4">
+        <h2 class="text-xl font-semibold">
+          {#if selectedContainer}
+            {findContainerById(containers, selectedContainer)?.containerName || 'Location'} Contents
+          {:else if filteredItems.length > 0}
+            All Items ({filteredItems.length})
+          {:else}
+            Contents
+          {/if}
+        </h2>
+      </div>
+      
       {#if filteredItems.length === 0}
         <div class="empty-state">
-          <p>No items in this location</p>
+          <p>No items found</p>
           <button class="action-button mt-2" on:click={() => showAddItemModal = true}>
             <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
             <span>Add Item</span>
@@ -638,6 +693,7 @@ input::placeholder {
             allItemsSelected = selectedItems.length === filteredItems.length; 
           }}
           on:viewItem={(e) => viewItemDetails(e.detail)}
+          on:viewPhoto={(e) => viewItemPhoto(e.detail)}
         />
       {/if}
     </div>
@@ -647,12 +703,9 @@ input::placeholder {
   <ItemDetailsModal 
     open={showItemDetails}
     onClose={() => showItemDetails = false}
-    item={activeItem || {
-      id: '',
-      itemName: '',
-      itemLocation: { path: '' }
-    }}
+    item={activeItem}
     onEdit={handleEditItem}
+    onAddItem={handleAddItem}
   />
   
   <AddItemModal 
@@ -688,7 +741,12 @@ input::placeholder {
     open={showNewLocationModal}
     onClose={() => showNewLocationModal = false}
     onAddLocation={handleAddLocation}
-    containers={containers}
+  />
+
+  <PhotoViewModal
+    open={showPhotoModal}
+    onClose={() => showPhotoModal = false}
+    item={currentPhotoItem}
   />
 
 </div>
@@ -712,7 +770,7 @@ input::placeholder {
   
   /* Sidebar */
   .sidebar {
-    width: 250px;
+    width: 300px;
     background-color: var(--sidebar-bg);
     overflow-y: auto;
     border-right: 1px solid #ccc;

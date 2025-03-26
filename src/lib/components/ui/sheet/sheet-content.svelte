@@ -33,7 +33,7 @@
 		{inTransitionConfig}
 		{outTransition}
 		{outTransitionConfig}
-		class={cn(sheetVariants({ side }), className)}
+		class={cn(sheetVariants({ side }), "bg-white dark:bg-gray-950", className)}
 		{...$$restProps}
 	>
 		<slot />

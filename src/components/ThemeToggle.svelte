@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
-  import Icon from '@iconify/svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { Sun, Moon } from 'lucide-svelte';
 
   let theme = 'light';
 
@@ -30,14 +31,16 @@
   });
 </script>
 
-<button
-  class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-primary-foreground"
+<Button 
+  variant="ghost" 
+  size="icon" 
   on:click={toggleTheme}
+  class="hover:bg-base-300 transition-colors duration-200"
   aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
 >
   {#if theme === 'light'}
-    <Icon icon="material-symbols:dark-mode" class="h-5 w-5" />
+    <Moon class="h-5 w-5" />
   {:else}
-    <Icon icon="material-symbols:light-mode" class="h-5 w-5" />
+    <Sun class="h-5 w-5" />
   {/if}
-</button> 
+</Button> 

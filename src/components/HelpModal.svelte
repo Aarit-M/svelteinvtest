@@ -10,7 +10,7 @@
 </script>
   
 <Dialog.Root bind:open onOpenChange={(isOpen) => !isOpen && onClose()}>
-  <Dialog.Content class="sm:max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in">
+  <Dialog.Content class="sm:max-w-lg max-h-[90vh] overflow-y-auto animate-fade-in bg-white dark:bg-gray-950">
     <Dialog.Header>
       <Dialog.Title class="text-center text-xl flex items-center justify-center">
         <Info class="mr-2 h-5 w-5" />

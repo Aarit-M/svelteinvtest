@@ -1,18 +1,23 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import Icon from '@iconify/svelte';
     import { Button } from '$lib/components/ui/button';
-    import { Input } from '$lib/components/ui/input';
     import ThemeToggle from './ThemeToggle.svelte';
+    import SearchBar from './SearchBar.svelte';
+    import { Trash2, FolderPlus, Plus, FolderUp, HelpCircle } from 'lucide-svelte';
+    
     const logo = '/2554_logo.png';
     export let searchQuery = '';
     export let selectedItems: string[] = [];
 
     const dispatch = createEventDispatcher();
 
-    function handleSearchChange(event: Event) {
-      const target = event.target as HTMLInputElement;
-      dispatch('searchChange', target.value);
+    function handleSearchChange(value: string) {
+      dispatch('searchChange', value);
+    }
+    
+    function handleClearSearch() {
+      searchQuery = '';
+      dispatch('searchChange', '');
     }
 
     function handleClearSelection() {
@@ -38,9 +43,13 @@
     function handleShowHelp() {
       dispatch('showHelp');
     }
+    
+    interface ChangeEvent {
+      detail: string;
+    }
 </script>
 
-<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center px-4 py-3 shadow-md">
+<header class="app-header sticky top-0 z-50 w-full flex items-center px-4 py-3 shadow-md">
   <!-- Left: Logo and Title -->
   <div class="flex items-center">
     <img 
@@ -55,14 +64,12 @@
   <!-- Center: Search Bar -->
   <div class="flex-1 flex justify-center">
     <div class="relative w-64">
-      <Input 
-        type="text"
-        placeholder="Search items..."
+      <SearchBar
         value={searchQuery}
-        on:input={handleSearchChange}
-        class="pl-8 w-full bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 h-9 focus:bg-primary-foreground/20"
+        on:change={(event: ChangeEvent) => handleSearchChange(event.detail)}
+        on:clear={handleClearSearch}
+        className="header-search-input w-full"
       />
-      <Icon icon="material-symbols:search" class="h-4 w-4 absolute left-2.5 top-2.5 text-primary-foreground/60" />
     </div>
   </div>
 
@@ -77,16 +84,16 @@
         on:click={handleDelete}
         class="h-9"
       >
-        <Icon icon="material-symbols:delete" class="h-4 w-4 mr-1" />
+        <Trash2 class="h-4 w-4 mr-1" />
         <span class="hidden md:inline">Delete</span>
       </Button>
       <Button 
         variant="outline"
         size="sm"
         on:click={handleGroupIntoLocation}
-        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        class="h-9 hover:bg-base-300"
       >
-        <Icon icon="material-symbols:folder-add" class="h-4 w-4 mr-1" />
+        <FolderPlus class="h-4 w-4 mr-1" />
         <span class="hidden md:inline">Group</span>
       </Button>
     {:else}
@@ -95,18 +102,18 @@
         variant="outline"
         size="sm"
         on:click={handleAddItem}
-        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        class="h-9 hover:bg-base-300"
       >
-        <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
+        <Plus class="h-4 w-4 mr-1" />
         <span>Add Item</span>
       </Button>
       <Button
         variant="outline"
         size="sm"
         on:click={handleAddLocation}
-        class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        class="h-9 hover:bg-base-300"
       >
-        <Icon icon="material-symbols:create-new-folder" class="h-4 w-4 mr-1" />
+        <FolderUp class="h-4 w-4 mr-1" />
         <span>Add Location</span>
       </Button>
     {/if}
@@ -114,11 +121,18 @@
       variant="ghost"
       size="icon"
       on:click={handleShowHelp}
-      class="text-primary-foreground hover:bg-primary-foreground/10"
+      class="hover:bg-base-300"
       aria-label="Help"
     >
-      <Icon icon="material-symbols:help" class="h-5 w-5" />
+      <HelpCircle class="h-5 w-5" />
     </Button>
     <ThemeToggle />
   </div>
 </header>
+
+<style>
+  /* Ensure the header text is visible in both themes */
+  .app-header {
+    color: var(--header-fg);
+  }
+</style>

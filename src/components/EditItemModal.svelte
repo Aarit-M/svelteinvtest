@@ -32,7 +32,7 @@
 </script>
   
 <Dialog {open} onOpenChange={onClose}>
-  <DialogContent class="sm:max-w-md">
+  <DialogContent class="sm:max-w-md bg-white dark:bg-gray-950">
     <DialogHeader>
       <DialogTitle>Edit Item</DialogTitle>
       <DialogDescription>Make changes to your item</DialogDescription>

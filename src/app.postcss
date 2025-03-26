@@ -1,224 +1,214 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
-@layer base {
+
+@layer components {
+  /* Custom variables that respect DaisyUI themes */
   :root {
-    --background: 0 0% 100%; /* White background */
-    --foreground: 0 0% 0%; /* Black text */
-
-    --muted: 0 0% 96.1%; /* Very light gray for muted elements */
-    --muted-foreground: 0 0% 45%; /* Dark gray for muted text */
-
-    --popover: 0 0% 100%; /* White popover */
-    --popover-foreground: 0 0% 0%;
-
-    --card: 0 0% 100%; /* White card */
-    --card-foreground: 0 0% 0%;
-
-    --border: 0 0% 88.6%; /* Light border */
-    --input: 0 0% 88.6%; /* Light input */
-
-    --primary: 0 0% 95.9%; /* Very light gray for primary */
-    --primary-foreground: 0 0% 0%; /* Black text */
-
-    --secondary: 0 0% 96.1%; /* Light gray secondary */
-    --secondary-foreground: 0 0% 0%;
-
-    --accent: 0 0% 96.1%; /* Light gray accent */
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 84.2% 60.2%; /* Red for destructive */
-    --destructive-foreground: 0 0% 100%;
-
-    --ring: 0 0% 0%;
-
-    --radius: 0.5rem;
+    --header-bg: #f8f9fa;
+    --header-fg: #333;
+    --header-search-bg: #fff;
+    --header-border: #e5e7eb;
   }
- 
-  .dark {
-    --background: 0 0% 10%; /* Dark background */
-    --foreground: 0 0% 100%; /* White text */
 
-    --muted: 0 0% 15%; /* Dark muted elements */
-    --muted-foreground: 0 0% 60%;
-
-    --popover: 0 0% 10%; /* Dark popover */
-    --popover-foreground: 0 0% 100%;
-
-    --card: 0 0% 10%; /* Dark card */
-    --card-foreground: 0 0% 100%;
-
-    --border: 0 0% 20%; /* Dark border */
-    --input: 0 0% 22%;
-
-    --primary: 0 0% 20%; /* Dark primary */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 100%;
-
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --ring: 0 0% 20%;
-
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-
-    --info: 0 0% 20%;
-    --info-foreground: 0 0% 100%;
+  [data-theme="dark"] {
+    --header-bg: #121212; /* Dark header for dark mode */
+    --header-fg: #e5e7eb; /* Light grey text for dark mode */
+    --header-search-bg: rgba(255, 255, 255, 0.05);
+    --header-border: rgba(255, 255, 255, 0.1);
   }
-}
- 
-@layer base {
-  * {
-    @apply border-border;
+
+  /* Animation styles */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
-  body {
-    @apply bg-background text-foreground;
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
   }
-}
 
-/* Animation styles */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+  /* Drag and drop styles */
+  .svelte-dnd-draggable {
+    cursor: grab;
+  }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
+  .svelte-dnd-dragging {
+    cursor: grabbing;
+    opacity: 0.8;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    z-index: 50;
+  }
 
-/* Drag and drop styles */
-.svelte-dnd-draggable {
-  cursor: grab;
-}
+  .drag-over {
+    background-color: rgba(var(--primary), 0.1) !important;
+    outline: 2px dashed var(--primary);
+    outline-offset: -2px;
+  }
 
-.svelte-dnd-dragging {
-  cursor: grabbing;
-  opacity: 0.8;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  z-index: 50;
-}
+  .dark .drag-over {
+    background-color: rgba(var(--primary), 0.2) !important;
+    outline: 2px dashed var(--primary);
+  }
 
-.drag-over {
-  background-color: hsl(var(--primary) / 0.2) !important;
-  outline: 2px dashed hsl(var(--primary));
-  outline-offset: -2px;
-}
+  .drag-invalid {
+    background-color: rgba(var(--error), 0.1) !important;
+    outline: 2px dashed var(--error);
+    outline-offset: -2px;
+  }
 
-.drag-invalid {
-  background-color: hsl(var(--destructive) / 0.2) !important;
-  outline: 2px dashed hsl(var(--destructive));
-  outline-offset: -2px;
-}
+  .dark .drag-invalid {
+    background-color: rgba(var(--error), 0.2) !important;
+    outline: 2px dashed var(--error);
+  }
 
-/* Post-drop flash effect */
-@keyframes post-drop-flash {
-  0% { background-color: hsl(var(--primary) / 0.3); }
-  100% { background-color: transparent; }
-}
+  /* Post-drop flash effect */
+  @keyframes post-drop-flash-light {
+    0% { background-color: rgba(var(--primary), 0.1); }
+    100% { background-color: transparent; }
+  }
 
-.post-drop-flash {
-  animation: post-drop-flash 0.5s ease-out;
-}
+  @keyframes post-drop-flash-dark {
+    0% { background-color: rgba(var(--primary), 0.2); }
+    100% { background-color: transparent; }
+  }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+  .post-drop-flash {
+    animation: post-drop-flash-light 0.5s ease-out;
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .dark .post-drop-flash {
+    animation: post-drop-flash-dark 0.5s ease-out;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 4px;
-}
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-/* Table Styles */
-.table-container {
-  @apply rounded-lg border bg-card text-card-foreground shadow-lg overflow-hidden;
-}
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--neutral), 0.6);
+    border-radius: 4px;
+  }
 
-.table-container th {
-  @apply bg-muted text-muted-foreground font-semibold p-4 text-left;
-}
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--neutral), 0.8);
+  }
 
-.table-container td {
-  @apply p-4 border-t border-muted;
-}
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--neutral);
+  }
 
-.table-container tr:hover {
-  @apply bg-muted/50;
-}
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--neutral);
+  }
 
-/* Buttons */
-.button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-medium transition-colors;
-}
+  /* Table Styles */
+  .table-container {
+    @apply rounded-lg border shadow-lg overflow-hidden bg-base-100 text-base-content;
+  }
 
-.button-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90;
-}
+  .table-container th {
+    @apply font-semibold p-4 text-left bg-base-200 text-base-content;
+  }
 
-.button-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
-}
+  .table-container td {
+    @apply p-4 border-t border-base-200;
+  }
 
-.button-destructive {
-  @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
-}
+  .table-container tr:hover {
+    @apply bg-base-200 bg-opacity-50;
+  }
 
-.button-disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
+  /* Buttons */
+  .button {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 font-medium transition-colors;
+  }
 
-/* Modal Styles */
-.modal-content {
-  @apply bg-background text-foreground rounded-lg shadow-xl max-h-[90vh] overflow-auto;
-}
+  .button-primary {
+    @apply bg-primary text-primary-content hover:opacity-90;
+  }
 
-/* Form Styles */
-.form-label {
-  @apply text-sm font-semibold text-foreground mb-1.5;
-}
+  .button-secondary {
+    @apply bg-secondary text-secondary-content hover:opacity-90;
+  }
 
-.form-input {
-  @apply rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:ring-offset-2;
-}
+  .button-destructive {
+    @apply bg-error text-error-content hover:opacity-90;
+  }
 
-.form-select {
-  @apply rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:ring-offset-2;
-}
+  .button-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
 
-.form-checkbox {
-  @apply h-4 w-4 rounded border border-input focus:ring-2 focus:ring-ring focus:ring-offset-2;
-}
+  /* Modal Styles */
+  .modal-content {
+    @apply rounded-lg shadow-xl max-h-[90vh] overflow-auto bg-base-100 text-base-content;
+  }
 
-/* Hover effects */
-.hover-bright {
-  transition: filter 0.2s ease-in-out;
-}
+  /* Form Styles */
+  .form-label {
+    @apply text-sm font-semibold mb-1.5 text-base-content;
+  }
 
-.hover-bright:hover {
-  filter: brightness(1.2);
-}
+  .form-input {
+    @apply rounded-md border px-3 py-2 text-sm bg-base-200 border-base-300 text-base-content;
+  }
 
-/* Transitions */
-.transition-all {
-  transition: all 0.3s ease-in-out;
+  .form-select {
+    @apply rounded-md border px-3 py-2 text-sm bg-base-200 border-base-300 text-base-content;
+  }
+
+  .form-checkbox {
+    @apply h-4 w-4 rounded border border-base-300;
+  }
+
+  /* Header Styles */
+  .app-header {
+    background-color: var(--header-bg);
+    color: var(--header-fg);
+    border-bottom: 1px solid var(--header-border);
+  }
+
+  .header-search-input {
+    background-color: var(--header-search-bg);
+    color: var(--header-fg);
+  }
+
+  /* Layout Styles */
+  .app-container {
+    @apply h-screen flex flex-col overflow-hidden;
+  }
+
+  .main-layout {
+    @apply flex flex-1 overflow-hidden;
+  }
+
+  .sidebar {
+    @apply w-64 border-r border-base-300 h-full overflow-y-auto bg-base-100;
+    flex-shrink: 0;
+  }
+
+  .content-area {
+    @apply flex-1 overflow-y-auto bg-base-100 p-4;
+  }
+
+  /* Hover effects */
+  .hover-bright {
+    transition: filter 0.2s ease-in-out;
+  }
+
+  .hover-bright:hover {
+    filter: brightness(1.2);
+  }
+
+  /* Transitions */
+  .transition-all {
+    transition: all 0.3s ease-in-out;
+  }
 }

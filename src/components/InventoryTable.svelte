@@ -2,7 +2,7 @@
     import Icon from '@iconify/svelte';
     import { createEventDispatcher } from 'svelte';
     import type { Item } from '$lib/types';
-    import { cn } from '$lib/utils';
+    import { cn, getPlaceholderImage } from '$lib/utils';
     import * as Table from "$lib/components/ui/table";
   
     export let items: Item[] = [];
@@ -23,7 +23,10 @@
       }
     }
   
-    function handleSelectItem(itemId: string) {
+    function handleSelectItem(itemId: string, event: MouseEvent) {
+      // Stop propagation to prevent row click from triggering
+      event.stopPropagation();
+      
       if (selectedItems.includes(itemId)) {
         selectedItems = selectedItems.filter(id => id !== itemId);
         dispatch('selectItems', selectedItems);
@@ -44,6 +47,26 @@
   
     function viewItemDetails(item: Item) {
       dispatch('viewItem', item);
+    }
+    
+    // Functions to view item photo
+    function viewItemPhoto(item: Item, event: MouseEvent) {
+      event.stopPropagation(); // Prevent row click
+      dispatch('viewPhoto', item);
+    }
+    
+    function handlePhotoKeyDown(e: KeyboardEvent, item: Item) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch('viewPhoto', item);
+      }
+    }
+    
+    // Get a placeholder image if the item doesn't have one
+    function getItemImage(item: Item): string {
+      if (item.image) return item.image;
+      return getPlaceholderImage('item', item.itemName);
     }
   
     // Sort items based on column and direction
@@ -70,25 +93,54 @@
       return 0;
     });
   
-    function getSortIcon(column: string) {
-      if (sortColumn !== column) return null;
+    function getSortIcon(column: string): string {
+      if (sortColumn !== column) return '';
       return sortDirection === 'asc' ? 'material-symbols:keyboard-arrow-down' : 'material-symbols:keyboard-arrow-up';
     }
-  </script>
+    
+    // Determine checkbox state: checked, unchecked, or indeterminate
+    $: allChecked = items.length > 0 && selectedItems.length === items.length;
+    $: indeterminate = selectedItems.length > 0 && selectedItems.length < items.length;
+    
+    // Handle row click function
+    function handleRowClick(item: Item) {
+      viewItemDetails(item);
+    }
+    
+    // Handle keyboard events for accessibility
+    function handleKeyDown(e: KeyboardEvent, item: Item) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        viewItemDetails(item);
+      }
+    }
+    
+    // Handle image error
+    function handleImageError(event: Event) {
+      const imgElement = event.target as HTMLImageElement;
+      if (imgElement) {
+        imgElement.src = getPlaceholderImage('item');
+      }
+    }
+</script>
   
-  <div class="w-full shadow-sm rounded-md overflow-hidden">
+<div class="w-full shadow-sm rounded-md overflow-hidden">
     <Table.Root>
       <Table.Header class="bg-gray-100 dark:bg-gray-800">
         <Table.Row>
           <Table.Head class="w-16 pl-4">
             <button 
-              class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+              class:bg-primary={allChecked}
+              class:text-primary-foreground={allChecked}
+              class:indeterminate={indeterminate}
               on:click={handleSelectAll}
               aria-label="Select all items"
-              data-state={items.length > 0 && selectedItems.length === items.length ? 'checked' : 'unchecked'}
             >
-              {#if items.length > 0 && selectedItems.length === items.length}
+              {#if allChecked}
                 <Icon icon="material-symbols:check" class="h-3 w-3" />
+              {:else if indeterminate}
+                <Icon icon="material-symbols:horizontal-rule" class="h-3 w-3" />
               {/if}
             </button>
           </Table.Head>
@@ -127,33 +179,40 @@
             </div>
           </Table.Head>
           <Table.Head class="w-16">
-            <div class="flex justify-end">
-              <Icon icon="material-symbols:search" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            </div>
+            Photo
           </Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {#if sortedItems.length === 0}
           <Table.Row>
-            <Table.Cell colSpan={5} class="h-24 text-center text-muted-foreground">
+            <Table.Cell class="h-24 text-center text-muted-foreground" colspan={5}>
               No items found.
             </Table.Cell>
           </Table.Row>
         {:else}
           {#each sortedItems as item (item.id)}
-            <Table.Row class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <Table.Row 
+              class="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+              on:click={() => handleRowClick(item)}
+              on:keydown={(e) => handleKeyDown(e, item)}
+              tabindex={0}
+              role="button"
+            >
               <Table.Cell class="px-4 py-2">
-                <button 
-                  class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                  on:click={() => handleSelectItem(item.id)}
-                  aria-label={`Select ${item.itemName}`}
-                  data-state={selectedItems.includes(item.id) ? 'checked' : 'unchecked'}
-                >
-                  {#if selectedItems.includes(item.id)}
-                    <Icon icon="material-symbols:check" class="h-3 w-3" />
-                  {/if}
-                </button>
+                <div on:click|stopPropagation>
+                  <button 
+                    class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+                    class:bg-primary={selectedItems.includes(item.id)}
+                    class:text-primary-foreground={selectedItems.includes(item.id)}
+                    on:click={(e) => handleSelectItem(item.id, e)}
+                    aria-label={`Select ${item.itemName}`}
+                  >
+                    {#if selectedItems.includes(item.id)}
+                      <Icon icon="material-symbols:check" class="h-3 w-3" />
+                    {/if}
+                  </button>
+                </div>
               </Table.Cell>
               <Table.Cell class="px-4 py-2">{item.itemName}</Table.Cell>
               <Table.Cell class="px-4 py-2">{item.itemLocation.path}</Table.Cell>
@@ -163,13 +222,19 @@
                 {/if}
               </Table.Cell>
               <Table.Cell class="px-4 py-2">
-                <div class="flex justify-end">
-                  <button 
-                    class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-150"
-                    on:click={() => viewItemDetails(item)}
-                  >
-                    <Icon icon="material-symbols:visibility" class="w-4 h-4" />
-                  </button>
+                <div 
+                  class="relative w-10 h-10 overflow-hidden rounded-md border border-border cursor-pointer"
+                  on:click={(e) => viewItemPhoto(item, e)}
+                  on:keydown={(e) => handlePhotoKeyDown(e, item)}
+                  tabindex={0}
+                  role="button"
+                >
+                  <img 
+                    src={getItemImage(item)} 
+                    alt={item.itemName}
+                    class="w-full h-full object-cover" 
+                    on:error={handleImageError}
+                  />
                 </div>
               </Table.Cell>
             </Table.Row>
@@ -178,3 +243,10 @@
       </Table.Body>
     </Table.Root>
   </div>
+  
+<style>
+  .indeterminate {
+    background-color: hsl(var(--primary) / 0.5);
+    color: hsl(var(--primary-foreground));
+  }
+</style>

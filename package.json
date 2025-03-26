@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
+		"dev-network": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -23,6 +24,7 @@
 		"postcss-load-config": "^4.0.1",
 		"svelte": "^5.25.3",
 		"svelte-check": "^3.4.3",
+		"svelte-dnd-action": "^0.9.60",
 		"svelte-sonner": "^0.3.28",
 		"tailwind-merge": "^1.14.0",
 		"tailwind-variants": "^1.0.0",

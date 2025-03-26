@@ -1,7 +1,6 @@
-
 <script lang="ts">
     import { MapPin } from 'lucide-svelte';
-    import { Sheet } from '$lib/components/ui/sheet';
+    import * as Sheet from '$lib/components/ui/sheet';
     import ItemImage from '../components/ItemImage.svelte';
     import ItemActions from '../components/ItemActions.svelte';
     import LocationMap from '../components/LocationMap.svelte';
@@ -20,8 +19,8 @@
     let showEditModal = false;
   </script>
   
-  <Sheet {open} onOpenChange={onClose}>
-    <div slot="content" class="w-full sm:max-w-lg">
+  <Sheet.Root {open} onOpenChange={onClose}>
+    <Sheet.Content class="w-full sm:max-w-lg">
       <div class="space-y-6 pt-6">
         <ItemImage image={item.image} title={item.itemName} />
   
@@ -42,8 +41,8 @@
           onShowMap={() => (showMap = true)}
         />
       </div>
-    </div>
-  </Sheet>
+    </Sheet.Content>
+  </Sheet.Root>
   
   <LocationMap
     showMap={showMap}
@@ -61,7 +60,7 @@
   <EditItemModal
     open={showEditModal}
     onClose={() => (showEditModal = false)}
-    onSave={onEdit}
+    onEdit={onEdit}
     item={{
       id: item.id,
       itemName: item.itemName,

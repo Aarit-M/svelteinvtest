@@ -60,3 +60,31 @@ export const flyAndScale = (
 		easing: cubicOut
 	};
 };
+
+/**
+ * Get a placeholder image URL 
+ * @param type - The type of placeholder ('item', 'container', 'location')
+ * @param text - The text to display on the placeholder
+ * @param width - Width of the placeholder image
+ * @param height - Height of the placeholder image
+ * @returns The placeholder URL
+ */
+export function getPlaceholderImage(
+	type: 'item' | 'container' | 'location' = 'item', 
+	text: string = '', 
+	width: number = 200, 
+	height: number = 200
+): string {
+	// If text is empty, use the type as text
+	const displayText = text || type.charAt(0).toUpperCase() + type.slice(1);
+	
+	const colors = {
+		item: 'e2e8f0/64748b', // Light gray/slate
+		container: 'd1fae5/10b981', // Light green/emerald
+		location: 'dbeafe/3b82f6'  // Light blue/blue
+	};
+	
+	const color = colors[type] || colors.item;
+	
+	return `https://placehold.co/${width}x${height}/${color}?text=${encodeURIComponent(displayText)}`;
+}
