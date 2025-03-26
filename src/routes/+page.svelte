@@ -433,73 +433,132 @@
 <svelte:head>
   <title>Team 2554 Inventory Management</title>
   <style>
-  .app-container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: hsl(var(--background));
-  }
-  
-  /* Main content */
-  .main-content {
-    display: flex;
-    flex: 1;
-    height: calc(100vh - 60px); /* Adjust for header height */
-    overflow: hidden;
-  }
-  
-  /* Sidebar */
-  .sidebar {
-    width: 240px;
-    background-color: hsl(var(--primary) / 0.1);
-    border-right: 1px solid hsl(var(--border));
-    padding: 0.5rem 0;
-    overflow-y: auto;
-  }
-  
-  /* Content area */
-  .content-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    overflow: hidden;
-    background-color: hsl(var(--background));
-  }
-  
-  /* Empty state */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 2rem;
-    color: hsl(var(--muted-foreground));
-    text-align: center;
-  }
-  
-  .action-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-  
-  .action-button:hover {
-    background-color: hsl(var(--primary) / 0.9);
-  }
-  
-  .mt-2 {
-    margin-top: 0.5rem;
-  }
+:root {
+  --background: #ffffff;
+  --primary: #f4f4f4;
+  --primary-hover: #e0e0e0;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --text-dark: #000000;
+  --disabled-bg: #f0f0f0;
+  --disabled-border: #d0d0d0;
+  --disabled-text: #999999;
+  --header-bg: #ffffff;
+  --sidebar-bg: #f9f9f9;
+  --selected-bg: #e6e6e6;
+  --table-header-bg: #f0f0f0;
+  --table-row-bg: #ffffff;
+  --table-alternate-row-bg: #f9f9f9;
+  --button-bg: #f4f4f4;
+  --button-hover-bg: #e0e0e0;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background-color: var(--background);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+/* Global Reset */
+button, input, select, h1, h2, h3, h4, h5, * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-decoration: none;
+  background: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar */
+.rectangle-1 {
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
+  width: 240px;
+  padding: 10px;
+}
+
+/* Header */
+header {
+  background-color: var(--header-bg);
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Buttons */
+.button {
+  background-color: var(--button-bg);
+  color: var(--text-primary);
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Selected Row */
+.selected {
+  background-color: var(--selected-bg);
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: var(--table-header-bg);
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+  border-bottom: 2px solid var(--border-color);
+}
+
+tr:nth-child(even) {
+  background-color: var(--table-alternate-row-bg);
+}
+
+tr:nth-child(odd) {
+  background-color: var(--table-row-bg);
+}
+
+tr:hover {
+  background-color: var(--selected-bg);
+}
+
+td {
+  padding: 10px;
+}
+
+/* Inputs */
+input {
+  background-color: var(--primary);
+  color: var(--text-primary);
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+}
+
+input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Disabled State */
+.disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  border: 1px solid var(--disabled-border);
+  cursor: not-allowed;
+}
 </style>
 </svelte:head>
 
