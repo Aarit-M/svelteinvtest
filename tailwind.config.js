@@ -22,7 +22,8 @@ const config = {
 				foreground: "hsl(var(--foreground) / <alpha-value>)",
 				primary: {
 					DEFAULT: "hsl(var(--primary) / <alpha-value>)",
-					foreground: "hsl(var(--primary-foreground) / <alpha-value>)"
+					foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
+					hover: "hsl(var(--primary) / 0.9)",
 				},
 				secondary: {
 					DEFAULT: "hsl(var(--secondary) / <alpha-value>)",
@@ -56,8 +57,28 @@ const config = {
 			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
-			}
+			},
+			animation: {
+				"fade-in": "fadeIn 0.3s ease-in-out",
+			},
+			keyframes: {
+				fadeIn: {
+					"0%": { opacity: "0" },
+					"100%": { opacity: "1" },
+				},
+			},
 		}
+	},
+	plugins: [require("daisyui")],
+	daisyui: {
+		themes: ["light", "dark"],
+		darkTheme: "dark",
+		base: true,
+		styled: true,
+		utils: true,
+		prefix: "",
+		logs: true,
+		themeRoot: ":root",
 	},
 };
 

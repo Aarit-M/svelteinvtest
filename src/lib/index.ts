@@ -42,8 +42,8 @@ export interface DraggableOptions<T = any> {
   dragData: T;
   disabled?: boolean;
   callbacks?: {
-    onDragStart?: (state: DragDropState<T>) => void;
-    onDragEnd?: (state: DragDropState<T>) => void;
+    onDragStart?: (state: DragDropState<T>, event?: DragEvent) => void;
+    onDragEnd?: (state: DragDropState<T>, event?: DragEvent) => void;
   };
 }
 
@@ -54,10 +54,10 @@ export interface DroppableOptions<T = any> {
   attributes?: DragDropAttributes;
   canDrop?: (state: { source: { data: any } }) => boolean;
   callbacks?: {
-    onDragEnter?: (state: DragDropState<T>) => void;
-    onDragLeave?: (state: DragDropState<T>) => void;
-    onDragOver?: (state: DragDropState<T>) => void;
-    onDrop?: (state: DragDropState<T>) => Promise<void> | void;
+    onDragEnter?: (state: DragDropState<T>, event?: DragEvent) => void;
+    onDragLeave?: (state: DragDropState<T>, event?: DragEvent) => void;
+    onDragOver?: (state: DragDropState<T>, event?: DragEvent) => void;
+    onDrop?: (state: DragDropState<T>, event?: DragEvent) => Promise<void> | void;
   };
 }
 
@@ -114,12 +114,12 @@ export function draggable<T = any>(
         draggedItem: dragData,
         sourceContainer: container,
         targetContainer: null
-      });
+      }, event);
     }
   }
   
   // Function to handle drag end
-  function handleDragEnd() {
+  function handleDragEnd(event: DragEvent) {
     // Remove dragging class
     node.classList.remove('svelte-dnd-dragging');
     
@@ -130,7 +130,7 @@ export function draggable<T = any>(
         draggedItem: null,
         sourceContainer: null,
         targetContainer: null
-      });
+      }, event);
     }
     
     // Reset global state
@@ -244,7 +244,7 @@ export function droppable<T = any>(
         draggedItem: currentDragData,
         sourceContainer: sourceContainer,
         targetContainer: container
-      });
+      }, event);
     }
   }
   
@@ -273,7 +273,7 @@ export function droppable<T = any>(
         draggedItem: currentDragData,
         sourceContainer: sourceContainer,
         targetContainer: container
-      });
+      }, event);
     }
   }
   
@@ -306,7 +306,7 @@ export function droppable<T = any>(
         draggedItem: currentDragData,
         sourceContainer: sourceContainer,
         targetContainer: null
-      });
+      }, event);
     }
     
     // Update global state
@@ -364,7 +364,7 @@ export function droppable<T = any>(
         draggedItem: sourceData,
         sourceContainer: sourceId,
         targetContainer: container
-      });
+      }, event);
     }
   }
   

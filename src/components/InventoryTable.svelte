@@ -1,51 +1,52 @@
-
 <script lang="ts">
-    import { Eye, MapPin, Hash, Search, ChevronDown, ChevronUp } from 'lucide-svelte';
+    import Icon from '@iconify/svelte';
+    import { createEventDispatcher } from 'svelte';
     import type { Item } from '$lib/types';
-    import { Checkbox } from '$lib/components/ui/checkbox';
     import { cn } from '$lib/utils';
-    import { 
-      Table,
-      TableBody, 
-      TableCell, 
-      TableHead, 
-      TableHeader, 
-      TableRow
-    } from '$lib/components/ui/table';
+    import * as Table from "$lib/components/ui/table";
   
     export let items: Item[] = [];
-    export let onSelectItems: (items: string[]) => void;
     export let selectedItems: string[] = [];
-    export let onViewItem: (item: Item) => void;
   
+    const dispatch = createEventDispatcher();
+  
+    // Sorting state
     let sortColumn: string | null = 'itemName';
     let sortDirection: 'asc' | 'desc' = 'asc';
   
-    const handleSort = (column: string) => {
+    function handleSort(column: string) {
       if (sortColumn === column) {
         sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
       } else {
         sortColumn = column;
         sortDirection = 'asc';
       }
-    };
+    }
   
-    const handleSelectItem = (itemId: string) => {
+    function handleSelectItem(itemId: string) {
       if (selectedItems.includes(itemId)) {
-        onSelectItems(selectedItems.filter(id => id !== itemId));
+        selectedItems = selectedItems.filter(id => id !== itemId);
+        dispatch('selectItems', selectedItems);
       } else {
-        onSelectItems([...selectedItems, itemId]);
+        selectedItems = [...selectedItems, itemId];
+        dispatch('selectItems', selectedItems);
       }
-    };
+    }
   
-    const handleSelectAll = () => {
+    function handleSelectAll() {
       if (selectedItems.length === items.length) {
-        onSelectItems([]);
+        selectedItems = [];
       } else {
-        onSelectItems(items.map(item => item.id));
+        selectedItems = items.map(item => item.id);
       }
-    };
+      dispatch('selectItems', selectedItems);
+    }
   
+    function viewItemDetails(item: Item) {
+      dispatch('viewItem', item);
+    }
+  
+    // Sort items based on column and direction
     $: sortedItems = [...items].sort((a, b) => {
       if (!sortColumn) return 0;
       
@@ -58,8 +59,8 @@
         valueA = a.itemLocation.path;
         valueB = b.itemLocation.path;
       } else if (sortColumn === 'measurement') {
-        valueA = a.itemMeasurements?.size || 0;
-        valueB = b.itemMeasurements?.size || 0;
+        valueA = (a.itemMeasurements?.size || 0);
+        valueB = (b.itemMeasurements?.size || 0);
       } else {
         return 0;
       }
@@ -69,115 +70,111 @@
       return 0;
     });
   
-    const getSortIcon = (column: string) => {
+    function getSortIcon(column: string) {
       if (sortColumn !== column) return null;
-      return sortDirection === 'asc' ? 
-        '<ChevronDown class="h-4 w-4 ml-1" />' : 
-        '<ChevronUp class="h-4 w-4 ml-1" />';
-    };
+      return sortDirection === 'asc' ? 'material-symbols:keyboard-arrow-down' : 'material-symbols:keyboard-arrow-up';
+    }
   </script>
   
-  <div class="w-full bg-white dark:bg-gray-900 shadow-sm">
-    <Table>
-      <TableHeader class="bg-gray-100 dark:bg-gray-800">
-        <TableRow>
-          <TableHead class="w-16">
-            <Checkbox 
-              checked={items.length > 0 && selectedItems.length === items.length} 
-              onCheckedChange={handleSelectAll}
+  <div class="w-full shadow-sm rounded-md overflow-hidden">
+    <Table.Root>
+      <Table.Header class="bg-gray-100 dark:bg-gray-800">
+        <Table.Row>
+          <Table.Head class="w-16 pl-4">
+            <button 
+              class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              on:click={handleSelectAll}
               aria-label="Select all items"
-            />
-          </TableHead>
-          <TableHead 
+              data-state={items.length > 0 && selectedItems.length === items.length ? 'checked' : 'unchecked'}
+            >
+              {#if items.length > 0 && selectedItems.length === items.length}
+                <Icon icon="material-symbols:check" class="h-3 w-3" />
+              {/if}
+            </button>
+          </Table.Head>
+          <Table.Head 
             class="font-medium cursor-pointer" 
             on:click={() => handleSort('itemName')}
           >
             <div class="flex items-center">
               Item
-              {#if sortColumn === 'itemName'}
-                {#if sortDirection === 'asc'}
-                  <ChevronDown class="h-4 w-4 ml-1" />
-                {:else}
-                  <ChevronUp class="h-4 w-4 ml-1" />
-                {/if}
+              {#if getSortIcon('itemName')}
+                <Icon icon={getSortIcon('itemName')} class="h-4 w-4 ml-1" />
               {/if}
             </div>
-          </TableHead>
-          <TableHead 
+          </Table.Head>
+          <Table.Head 
             class="font-medium cursor-pointer"
             on:click={() => handleSort('location')}
           >
             <div class="flex items-center">
-              <MapPin class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+              <Icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
               Location
-              {#if sortColumn === 'location'}
-                {#if sortDirection === 'asc'}
-                  <ChevronDown class="h-4 w-4 ml-1" />
-                {:else}
-                  <ChevronUp class="h-4 w-4 ml-1" />
-                {/if}
+              {#if getSortIcon('location')}
+                <Icon icon={getSortIcon('location')} class="h-4 w-4 ml-1" />
               {/if}
             </div>
-          </TableHead>
-          <TableHead 
+          </Table.Head>
+          <Table.Head 
             class="font-medium cursor-pointer w-[100px]"
             on:click={() => handleSort('measurement')}
           >
             <div class="flex items-center">
-              <Hash class="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              {#if sortColumn === 'measurement'}
-                {#if sortDirection === 'asc'}
-                  <ChevronDown class="h-4 w-4 ml-1" />
-                {:else}
-                  <ChevronUp class="h-4 w-4 ml-1" />
-                {/if}
+              <Icon icon="material-symbols:tag" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              {#if getSortIcon('measurement')}
+                <Icon icon={getSortIcon('measurement')} class="h-4 w-4 ml-1" />
               {/if}
             </div>
-          </TableHead>
-          <TableHead class="w-16">
+          </Table.Head>
+          <Table.Head class="w-16">
             <div class="flex justify-end">
-              <Search class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <Icon icon="material-symbols:search" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </div>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+          </Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {#if sortedItems.length === 0}
-          <TableRow>
-            <TableCell colSpan={5} class="h-24 text-center text-muted-foreground">
+          <Table.Row>
+            <Table.Cell colSpan={5} class="h-24 text-center text-muted-foreground">
               No items found.
-            </TableCell>
-          </TableRow>
+            </Table.Cell>
+          </Table.Row>
         {:else}
           {#each sortedItems as item (item.id)}
-            <TableRow class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-              <TableCell class="px-4 py-2">
-                <Checkbox 
-                  checked={selectedItems.includes(item.id)} 
-                  onCheckedChange={() => handleSelectItem(item.id)}
+            <Table.Row class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              <Table.Cell class="px-4 py-2">
+                <button 
+                  class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                  on:click={() => handleSelectItem(item.id)}
                   aria-label={`Select ${item.itemName}`}
-                />
-              </TableCell>
-              <TableCell class="px-4 py-2">{item.itemName}</TableCell>
-              <TableCell class="px-4 py-2">{item.itemLocation.path}</TableCell>
-              <TableCell class="px-4 py-2">
+                  data-state={selectedItems.includes(item.id) ? 'checked' : 'unchecked'}
+                >
+                  {#if selectedItems.includes(item.id)}
+                    <Icon icon="material-symbols:check" class="h-3 w-3" />
+                  {/if}
+                </button>
+              </Table.Cell>
+              <Table.Cell class="px-4 py-2">{item.itemName}</Table.Cell>
+              <Table.Cell class="px-4 py-2">{item.itemLocation.path}</Table.Cell>
+              <Table.Cell class="px-4 py-2">
                 {#if item.itemMeasurements}
                   {item.itemMeasurements.size} {item.itemMeasurements.unit}
                 {/if}
-              </TableCell>
-              <TableCell class="px-4 py-2">
+              </Table.Cell>
+              <Table.Cell class="px-4 py-2">
                 <div class="flex justify-end">
                   <button 
                     class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-150"
-                    on:click={() => onViewItem(item)}
+                    on:click={() => viewItemDetails(item)}
                   >
-                    <Eye class="w-4 h-4" />
+                    <Icon icon="material-symbols:visibility" class="w-4 h-4" />
                   </button>
                 </div>
-              </TableCell>
-            </TableRow>
+              </Table.Cell>
+            </Table.Row>
           {/each}
         {/if}
-      </TableBody>
-    </Table>
+      </Table.Body>
+    </Table.Root>
   </div>

@@ -3,7 +3,7 @@
     import Icon from '@iconify/svelte';
     import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';
-    import { theme, toggleTheme } from '$lib/stores/theme';
+    import ThemeToggle from './ThemeToggle.svelte';
     const logo = '/2554_logo.png';
 
     export let searchQuery = '';
@@ -11,8 +11,9 @@
   
     const dispatch = createEventDispatcher();
   
-    function handleSearchChange(event) {
-      dispatch('searchChange', event.target.value);
+    function handleSearchChange(event: Event) {
+      const target = event.target as HTMLInputElement;
+      dispatch('searchChange', target.value);
     }
   
     function handleClearSelection() {
@@ -26,67 +27,101 @@
     function handleGroupIntoLocation() {
       dispatch('groupIntoLocation');
     }
-  </script>
-  
-  <header class="sticky top-0 z-50 w-full bg-[#333] dark:bg-[#222] text-white flex items-center px-4 py-3 shadow-md">
-    <div class="flex items-center space-x-3">
-      <img 
-        src={logo} 
-        alt="Team 2554 Logo" 
-        class="h-9 w-auto"
-      />
-      <h1 class="text-xl font-semibold hidden sm:block">Team 2554 Inventory Management</h1>
-      <h1 class="text-xl font-semibold sm:hidden">Inventory</h1>
-    </div>
     
-    <div class="relative ml-auto flex items-center space-x-2 md:space-x-4">
-      <div class="relative w-40 md:w-64">
-        <Input 
-          type="text"
-          placeholder="Search items..."
-          value={searchQuery}
-          on:input={handleSearchChange}
-          class="pl-8 bg-[#444] dark:bg-[#333] border-[#555] text-white placeholder:text-gray-400 h-9"
-        />
-        <Icon icon="lucide:search" class="h-4 w-4 absolute left-2.5 top-2.5 text-gray-400" />
-      </div>
+    function handleAddItem() {
+      dispatch('addItem');
+    }
+    
+    function handleAddLocation() {
+      dispatch('addLocation');
+    }
+    
+    function handleShowHelp() {
+      dispatch('showHelp');
+    }
+</script>
   
-      {#if selectedItems.length > 0}
-        <div class="flex items-center gap-2">
-          <span class="mr-1 text-sm hidden md:inline">{selectedItems.length} Selected</span>
-          <Button 
-            variant="destructive"
-            size="sm"
-            on:click={handleDelete}
-            class="h-9"
-          >
-            <Icon icon="lucide:trash-2" class="h-4 w-4 mr-1" />
-            <span class="hidden md:inline">Delete</span>
-          </Button>
-          <Button 
-            variant="outline"
-            size="sm"
-            on:click={handleGroupIntoLocation}
-            class="h-9 text-white border-white hover:bg-white/10"
-          >
-            <Icon icon="lucide:folder-plus" class="h-4 w-4 mr-1" />
-            <span class="hidden md:inline">Group</span>
-          </Button>
-        </div>
-      {/if}
+<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center justify-between px-4 py-3 shadow-md">
+  <div class="flex items-center">
+    <img 
+      src={logo} 
+      alt="Team 2554 Logo" 
+      class="h-9 w-auto mr-3"
+    />
+    <h1 class="text-xl font-semibold hidden sm:block">Team 2554 Inventory Management</h1>
+    <h1 class="text-xl font-semibold sm:hidden">Inventory</h1>
+  </div>
   
-      <Button
-        variant="ghost"
-        size="icon"
-        on:click={toggleTheme}
-        class="ml-2 text-white hover:bg-white/10"
-      >
-        {#if $theme === 'dark'}
-          <Icon icon="lucide:sun" class="h-5 w-5" />
-        {:else}
-          <Icon icon="lucide:moon" class="h-5 w-5" />
-        {/if}
-      </Button>
+  <div class="flex items-center gap-3">
+    <div class="relative">
+      <Input 
+        type="text"
+        placeholder="Search items..."
+        value={searchQuery}
+        on:input={handleSearchChange}
+        class="pl-8 w-64 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 h-9 focus:bg-primary-foreground/20"
+      />
+      <Icon icon="material-symbols:search" class="h-4 w-4 absolute left-2.5 top-2.5 text-primary-foreground/60" />
     </div>
-  </header>
+
+    <ThemeToggle />
+
+    <Button
+      variant="ghost"
+      size="icon"
+      on:click={handleShowHelp}
+      class="text-primary-foreground hover:bg-primary-foreground/10"
+      aria-label="Help"
+    >
+      <Icon icon="material-symbols:help" class="h-5 w-5" />
+    </Button>
+  </div>
+  
+  <div class="flex-1 mx-4 flex items-center justify-center">
+    {#if selectedItems.length > 0}
+      <div class="flex items-center gap-2">
+        <span class="mr-1 text-sm">{selectedItems.length} Selected</span>
+        <Button 
+          variant="destructive"
+          size="sm"
+          on:click={handleDelete}
+          class="h-9"
+        >
+          <Icon icon="material-symbols:delete" class="h-4 w-4 mr-1" />
+          <span class="hidden md:inline">Delete</span>
+        </Button>
+        <Button 
+          variant="outline"
+          size="sm"
+          on:click={handleGroupIntoLocation}
+          class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        >
+          <Icon icon="material-symbols:folder-add" class="h-4 w-4 mr-1" />
+          <span class="hidden md:inline">Group</span>
+        </Button>
+      </div>
+    {:else}
+      <div class="hidden md:flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          on:click={handleAddItem}
+          class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        >
+          <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
+          <span>Add Item</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          on:click={handleAddLocation}
+          class="h-9 text-primary-foreground border-primary-foreground/60 hover:bg-primary-foreground/10"
+        >
+          <Icon icon="material-symbols:create-new-folder" class="h-4 w-4 mr-1" />
+          <span>Add Location</span>
+        </Button>
+      </div>
+    {/if}
+  </div>
+</header>
   

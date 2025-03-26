@@ -6,6 +6,8 @@ export interface Container {
     isExpanded?: boolean;
     children?: Container[];
     parentId?: string | null;
+    image?: string;
+    description?: string;
   }
   
   export interface Item {

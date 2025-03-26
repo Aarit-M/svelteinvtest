@@ -9,6 +9,10 @@
     import GroupItemsModal from '../components/GroupItemsModal.svelte';
     import NewLocationModal from '../components/NewLocationModal.svelte';
     import FolderTree from '../components/FolderTree.svelte';
+    import Header from '../components/Header.svelte';
+    import AddItemButton from '../components/AddItemButton.svelte';
+    import InventoryTable from '../components/InventoryTable.svelte';
+    import Icon from '@iconify/svelte';
     const logo = '/2554_logo.png';
 
     // State variables
@@ -201,13 +205,13 @@
     } else {
       filteredItems = [];
     }
-    }
+  }
   
-    function handleAddItem(newItem: Partial<Item>) {
+  function handleAddItem(newItem: Partial<Item>) {
     if (!selectedContainer) {
       toast.error("Please select a container to add the item to.");
-        return;
-      }
+      return;
+    }
   
     // Generate a unique ID
     const itemId = `item-${Date.now()}`;
@@ -235,9 +239,9 @@
     }
     
     showAddItemModal = false;
-    }
+  }
   
-    function handleEditItem(updatedItem: Item) {
+  function handleEditItem(updatedItem: Item) {
     if (!selectedContainer) return;
     
     const container = findContainerById(containers, selectedContainer);
@@ -253,11 +257,11 @@
     }
     
     showItemDetails = false;
-    }
+  }
   
-    function handleDeleteItems() {
-      if (selectedItems.length === 0) return;
-      
+  function handleDeleteItems() {
+    if (selectedItems.length === 0) return;
+    
     if (!selectedContainer) return;
     
     const container = findContainerById(containers, selectedContainer);
@@ -319,9 +323,9 @@
     }
     
     showNewLocationModal = false;
-    }
+  }
   
-    function handleGroupItems(locationId: string) {
+  function handleGroupItems(locationId: string) {
     if (selectedItems.length === 0) return;
     
     const targetContainer = findContainerById(containers, locationId);
@@ -398,8 +402,33 @@
   // Check if item is selected
   function isItemSelected(id: string): boolean {
     return selectedItems.includes(id);
+  }
+
+  // Function to filter items based on search query
+  function filterItemsBySearch(items: Item[], query: string): Item[] {
+    if (!query.trim()) return items;
+    
+    const lowerQuery = query.toLowerCase();
+    return items.filter(item => 
+      item.itemName.toLowerCase().includes(lowerQuery) || 
+      item.description?.toLowerCase().includes(lowerQuery) ||
+      item.itemLocation.path.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  // Update filtered items when search query changes
+  function handleSearchChange(newQuery: string) {
+    searchQuery = newQuery;
+    
+    if (selectedContainer) {
+      const container = findContainerById(containers, selectedContainer);
+      if (container && container.items) {
+        // Apply search filter
+        filteredItems = filterItemsBySearch(container.items, searchQuery);
+      }
     }
-  </script>
+  }
+</script>
   
 <svelte:head>
   <title>Team 2554 Inventory Management</title>
@@ -442,49 +471,18 @@
 </svelte:head>
 
 <div class="app-container">
-  <!-- Top header with title -->
-  <div class="header">
-    <img 
-      src={logo}
-      alt="Team 2554 Logo" 
-      class="h-10 w-auto mr-3"
-    />
-    <h1 class="app-title">Team 2554 Inventory Management</h1>
-  </div>
-  
-  <!-- Action buttons -->
-  <div class="action-bar">
-    <button class="action-button" on:click={() => showAddItemModal = true}>
-      <Plus size={16} />
-      <span>New Item</span>
-    </button>
-    
-    <button class="action-button" on:click={() => showNewLocationModal = true}>
-      <FolderPlus size={16} />
-      <span>New Location</span>
-    </button>
-    
-    <button class="action-button" on:click={() => showHelpModal = true}>
-      <HelpCircle size={16} />
-      <span>Help</span>
-    </button>
-    
-    <div class="selection-info">
-      <span>{selectedItems.length} Selected</span>
-    </div>
-    
-    <button class="action-button {selectedItems.length === 0 ? 'disabled' : ''}" 
-            on:click={handleDeleteItems}
-            disabled={selectedItems.length === 0}>
-      <span>Delete</span>
-    </button>
-    
-    <button class="action-button {selectedItems.length === 0 ? 'disabled' : ''}" 
-            on:click={() => showGroupModal = true}
-            disabled={selectedItems.length === 0}>
-      <span>Group Into Location</span>
-    </button>
-  </div>
+  <!-- Top header with search, theme toggle and help button -->
+  <Header
+    {searchQuery}
+    selectedItems={selectedItems}
+    on:searchChange={e => handleSearchChange(e.detail)}
+    on:clearSelection={() => { selectedItems = []; allItemsSelected = false; }}
+    on:delete={handleDeleteItems}
+    on:groupIntoLocation={() => showGroupModal = true}
+    on:addItem={() => showAddItemModal = true}
+    on:addLocation={() => showNewLocationModal = true}
+    on:showHelp={() => showHelpModal = true}
+  />
   
   <div class="main-content">
     <!-- Sidebar - Container tree -->
@@ -520,86 +518,36 @@
             filteredItems = sourceContainer.items;
           }
           
-          toast.success(`Item moved to ${targetContainer.containerName}`);
+          toast.success(`Moved "${item.itemName}" to ${targetContainer.containerName}`, {
+            position: 'bottom-right',
+            duration: 3000,
+          });
         }}
       />
     </div>
   
     <!-- Main content area -->
     <div class="content-area">
-      <!-- Table header -->
-      <div class="table-header">
-        <div class="table-cell checkbox-cell">
-          <!-- Master checkbox for selecting all -->
-          <button 
-            class="checkbox-button" 
-            on:click={toggleSelectAll}
-            aria-label={allItemsSelected ? "Deselect all items" : "Select all items"}
-          >
-            {#if allItemsSelected}
-              <CheckSquare size={20} />
-            {:else}
-              <Square size={20} />
-            {/if}
+      <!-- Replace the table header and body with InventoryTable -->
+      {#if filteredItems.length === 0}
+        <div class="empty-state">
+          <p>No items in this location</p>
+          <button class="action-button mt-2" on:click={() => showAddItemModal = true}>
+            <Icon icon="material-symbols:add" class="h-4 w-4 mr-1" />
+            <span>Add Item</span>
           </button>
         </div>
-        <div class="table-cell item-cell">Item</div>
-        <div class="table-cell location-cell">Location</div>
-        <div class="table-cell size-cell">
-          <Hash size={20} />
-        </div>
-        <div class="table-cell actions-cell">
-          <Search size={20} />
-        </div>
-      </div>
-  
-      <!-- Table rows -->
-      <div class="table-body">
-        {#if filteredItems.length === 0}
-          <div class="empty-state">
-            <p>No items in this location</p>
-            <button class="action-button mt-2" on:click={() => showAddItemModal = true}>
-              <Plus size={16} />
-              <span>Add Item</span>
-            </button>
-          </div>
-        {:else}
-          {#each filteredItems as item, index}
-            <div class="table-row {index % 2 === 0 ? 'even' : 'odd'}">
-              <div class="table-cell checkbox-cell">
-                <button 
-                  class="checkbox-button" 
-                  on:click={() => toggleSelectItem(item.id)}
-                  aria-label={isItemSelected(item.id) ? "Deselect item" : "Select item"}
-                >
-                  {#if isItemSelected(item.id)}
-                    <CheckSquare size={20} />
-                  {:else}
-                    <Square size={20} />
-                  {/if}
-                </button>
-              </div>
-              <div class="table-cell item-cell">
-                <button class="item-name-btn" on:click={() => viewItemDetails(item)}>
-                  {item.itemName}
-                </button>
-              </div>
-              <div class="table-cell location-cell">{item.itemLocation?.path}</div>
-              <div class="table-cell size-cell">
-                {#if item.itemMeasurements}
-                  {item.itemMeasurements.size} {item.itemMeasurements.unit}
-                {/if}
-              </div>
-              <div class="table-cell actions-cell">
-                <button class="view-button" on:click={() => viewItemDetails(item)}>
-                  <Eye size={20} />
-                </button>
-              </div>
-            </div>
-          {/each}
-        {/if}
-      </div>
-      </div>
+      {:else}
+        <InventoryTable 
+          items={filteredItems}
+          bind:selectedItems={selectedItems}
+          on:selectItems={(e) => { 
+            selectedItems = e.detail; 
+            allItemsSelected = selectedItems.length === filteredItems.length; 
+          }}
+          on:viewItem={(e) => viewItemDetails(e.detail)}
+        />
+      {/if}
     </div>
   </div>
   
@@ -607,11 +555,11 @@
   <ItemDetailsModal 
     open={showItemDetails}
     onClose={() => showItemDetails = false}
-  item={activeItem || {
-    id: '',
-    itemName: '',
-    itemLocation: { path: '' }
-  }}
+    item={activeItem || {
+      id: '',
+      itemName: '',
+      itemLocation: { path: '' }
+    }}
     onEdit={handleEditItem}
   />
   
@@ -620,7 +568,7 @@
     onClose={() => showAddItemModal = false}
     onAddItem={handleAddItem}
     defaultLocation={selectedContainer 
-  ? findContainerById(containers, selectedContainer)?.containerLocation.path || '' 
+      ? findContainerById(containers, selectedContainer)?.containerLocation.path || '' 
       : ''}
   />
   
@@ -635,8 +583,8 @@
     onGroup={handleGroupItems}
     containers={containers}
     selectedItems={selectedItems.map(id => {
-  const container = findContainerById(containers, selectedContainer || '');
-  if (container && container.items) {
+      const container = findContainerById(containers, selectedContainer || '');
+      if (container && container.items) {
         const item = container.items.find(item => item.id === id);
         if (item) return item;
       }
@@ -650,6 +598,8 @@
     onAddLocation={handleAddLocation}
     containers={containers}
   />
+
+</div>
   
 <style>
   .app-container {
@@ -660,67 +610,11 @@
     background-color: var(--background);
   }
   
-  /* Header */
-  .header {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background-color: var(--header-bg);
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .app-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: var(--text-dark);
-    margin-left: 0.5rem;
-  }
-  
-  /* Action bar */
-  .action-bar {
-    display: flex;
-    padding: 0.5rem;
-    background-color: var(--header-bg);
-    border-bottom: 1px solid #ccc;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  
-  .action-button {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    background-color: var(--primary);
-    color: var(--text-primary);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.875rem;
-  }
-  
-  .action-button:hover {
-    background-color: var(--primary-hover);
-  }
-  
-  .action-button.disabled {
-    background-color: var(--disabled-bg);
-    color: var(--disabled-text);
-    cursor: not-allowed;
-  }
-  
-  .selection-info {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    color: #666;
-  }
-  
   /* Main content */
   .main-content {
     display: flex;
     flex: 1;
-    height: calc(100vh - 120px);
+    height: calc(100vh - 60px); /* Adjust for header height */
     overflow: hidden;
   }
   
@@ -741,110 +635,33 @@
     overflow: hidden;
   }
   
-  /* Table styles */
-  .table-header {
-    display: flex;
-    background-color: var(--table-header-bg);
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ccc;
-    user-select: none;
-  }
-  
-  .table-cell {
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  .checkbox-cell {
-    width: 40px;
-    justify-content: center;
-  }
-  
-  .item-cell {
-    width: 25%;
-    font-weight: 500;
-  }
-  
-  .location-cell {
-    width: 55%;
-    font-weight: 500;
-  }
-  
-  .size-cell {
-    width: 10%;
-    justify-content: center;
-  }
-  
-  .actions-cell {
-    width: 40px;
-    justify-content: center;
-  }
-  
-  .table-body {
-    flex: 1;
-    overflow-y: auto;
-  }
-  
-  .table-row {
-    display: flex;
-    border-bottom: 1px solid #eee;
-    align-items: center;
-  }
-  
-  .table-row:hover {
-    background-color: rgba(0, 0, 0, 0.025);
-  }
-  
-  .table-row.even {
-    background-color: var(--table-row-bg);
-  }
-  
-  .table-row.odd {
-    background-color: var(--table-alternate-row-bg);
-  }
-  
-  .checkbox-button, .view-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-    color: #555;
-  }
-  
-  .item-name-btn {
-    cursor: pointer;
-    background: none;
-    border: none;
-    text-align: left;
-    width: 100%;
-    padding: 0.25rem;
-    color: inherit;
-    font-weight: 400;
-  }
-  
-  .item-name-btn:hover {
-    color: #000;
-    text-decoration: underline;
-  }
-  
-  .checkbox-button:hover, .view-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-    color: #000;
-  }
-  
+  /* Empty state */
   .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100%;
     padding: 2rem;
     color: #666;
     text-align: center;
+  }
+  
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  
+  .action-button:hover {
+    background-color: hsl(var(--primary) / 0.9);
   }
   
   .mt-2 {
