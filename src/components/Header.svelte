@@ -15,6 +15,18 @@
       dispatch('searchChange', target.value);
     }
 
+    function handleClearSelection() {
+      dispatch('clearSelection');
+    }
+
+    function handleDelete() {
+      dispatch('delete');
+    }
+
+    function handleGroupIntoLocation() {
+      dispatch('groupIntoLocation');
+    }
+
     function handleAddItem() {
       dispatch('addItem');
     }
@@ -28,7 +40,7 @@
     }
 </script>
 
-<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center justify-between px-4 py-3 shadow-md">
+<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center px-4 py-3 shadow-md">
   <!-- Left: Logo and Title -->
   <div class="flex items-center">
     <img 
