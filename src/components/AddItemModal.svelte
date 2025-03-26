@@ -1,4 +1,3 @@
-
 <script lang="ts">
     import { Camera, X, Upload } from 'lucide-svelte';
     import * as Dialog from '$lib/components/ui/dialog';
