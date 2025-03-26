@@ -164,7 +164,90 @@
         onClose();
     }
 }}>
-    </Dialog.Root>
+    <Dialog.Content class="sm:max-w-md animate-fade-in">
+        <Dialog.Header>
+            <Dialog.Title class="text-center text-xl">Add New Item</Dialog.Title>
+        </Dialog.Header>
+        <button
+            on:click={onClose}
+            class="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+        >
+            <X class="h-4 w-4" />
+        </button>
+
+        <div class="space-y-4 pt-4">
+            <div class="space-y-2">
+                <Label>Image</Label>
+                <Card class="p-0 overflow-hidden">
+                    <div class="p-0">
+                        {#if imageSrc}
+                            <div class="relative">
+                                <img
+                                    src={imageSrc}
+                                    alt="Item preview"
+                                    class="mx-auto h-48 object-contain"
+                                />
+                                <button
+                                    on:click={() => imageSrc = undefined}
+                                    class="absolute top-2 right-2 bg-white dark:bg-gray-800 p-1 rounded-full shadow"
+                                >
+                                    <X class="h-4 w-4" />
+                                </button>
+                            </div>
+                        {:else}
+                            <div class="grid grid-cols-2 gap-2 p-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    on:click={handleShowCamera} // Corrected line
+                                    class="flex-1 h-24"
+                                >
+                                    <Camera class="mr-2 h-5 w-5" />
+                                    Take Photo
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    on:click={handleUploadImage}
+                                    class="flex-1 h-24"
+                                >
+                                    <Upload class="mr-2 h-5 w-5" />
+                                    Upload Image
+                                </Button>
+                            </div>
+                        {/if}
+                    </div>
+                </Card>
+            </div>
+
+            <Dialog.Footer class="pt-4">
+                <Button
+                    on:click={handleSubmit}
+                    class="w-full"
+                >
+                    Add Item
+                </Button>
+            </Dialog.Footer>
+        </div>
+    </Dialog.Content>
+</Dialog.Root>
 
 <Dialog.Root bind:open={showCamera} onOpenChange={(isOpen) => !isOpen && handleCameraClose()}>
-    </Dialog.Root>
+    <Dialog.Content class="sm:max-w-md animate-fade-in">
+        <Dialog.Header>
+            <Dialog.Title>Take a Photo</Dialog.Title>
+        </Dialog.Header>
+
+        <div class="space-y-4">
+            <div class="relative bg-black rounded-md aspect-video flex items-center justify-center overflow-hidden">
+                {#if cameraActive}
+                    <video
+                        bind:this={videoElement}
+                        autoplay
+                        playsinline
+                        class="w-full h-full object-cover"
+                    ></video>
+                {:else}
+                    <div class="text-gray-500">Starting camera...</div>
+                {/if}
+                <canvas bind:this={canvas
