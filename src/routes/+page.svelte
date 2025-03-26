@@ -433,41 +433,134 @@
 <svelte:head>
   <title>Team 2554 Inventory Management</title>
   <style>
-    :root {
-      --background: #f4f4f4;
-      --primary: #2c2c2c;
-      --primary-hover: #444444;
-      --text-primary: #f5f5f5;
-      --text-dark: #000000;
-      --disabled-bg: #d9d9d9;
-      --disabled-border: #b3b3b3;
-      --disabled-text: #b3b3b3;
-      --header-bg: #d9d9d9;
-      --sidebar-bg: #cbcbcb;
-      --selected-bg: #cdc9c9;
-      --table-header-bg: #b7b7b7;
-      --table-row-bg: #d9d9d9;
-      --table-alternate-row-bg: #f8f8f8;
-    }
+  :root {
+    --background: #181818;
+    --primary: #1e1e1e;
+    --primary-hover: #2a2e33;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-dark: #000000;
+    --disabled-bg: #2a2e33;
+    --disabled-border: #383838;
+    --disabled-text: #5a5a5a;
+    --header-bg: #181818;
+    --sidebar-bg: #202020;
+    --selected-bg: #2f2f2f;
+    --table-header-bg: #252525;
+    --table-row-bg: #1e1e1e;
+    --table-alternate-row-bg: #2a2a2a;
+    --button-bg: #2a2e33;
+    --button-hover-bg: #383d42;
+    --border-color: #2a2e33;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+  }
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", sans-serif;
-      background-color: var(--background);
-      box-sizing: border-box;
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    box-sizing: border-box;
+  }
 
-    button, input, select, h1, h2, h3, h4, h5, * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      border: none;
-      text-decoration: none;
-      background: none;
-      -webkit-font-smoothing: antialiased;
-    }
-  </style>
+  /* Global Reset */
+  button, input, select, h1, h2, h3, h4, h5, * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: none;
+    text-decoration: none;
+    background: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sidebar */
+  .rectangle-1 {
+    background-color: var(--sidebar-bg);
+    color: var(--text-primary);
+    width: 240px;
+    padding: 10px;
+  }
+
+  /* Header */
+  header {
+    background-color: var(--header-bg);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Buttons */
+  .button {
+    background-color: var(--button-bg);
+    color: var(--text-primary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+
+  .button:hover {
+    background-color: var(--button-hover-bg);
+  }
+
+  /* Selected Row */
+  .selected {
+    background-color: var(--selected-bg);
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    background-color: var(--table-header-bg);
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--table-alternate-row-bg);
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--table-row-bg);
+  }
+
+  tr:hover {
+    background-color: var(--selected-bg);
+  }
+
+  td {
+    padding: 10px;
+  }
+
+  /* Inputs */
+  input {
+    background-color: var(--primary);
+    color: var(--text-primary);
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+  }
+
+  input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  /* Disabled State */
+  .disabled {
+    background-color: var(--disabled-bg);
+    color: var(--disabled-text);
+    border: 1px solid var(--disabled-border);
+    cursor: not-allowed;
+  }
+</style>
+
 </svelte:head>
 
 <div class="app-container">
