@@ -4,7 +4,7 @@
     import { Button } from '$lib/components/ui/button';
     import { Input } from '$lib/components/ui/input';
     import { theme, toggleTheme } from '$lib/stores/theme';
-    import logo from '../../2554_logo.png';
+    const logo = '/2554_logo.png';
 
     export let searchQuery = '';
     export let selectedItems: string[] = [];

@@ -8,8 +8,8 @@
     import HelpModal from '../components/HelpModal.svelte';
     import GroupItemsModal from '../components/GroupItemsModal.svelte';
     import NewLocationModal from '../components/NewLocationModal.svelte';
-    import logo from '../../2554_logo.png';
     import FolderTree from '../components/FolderTree.svelte';
+    const logo = '/2554_logo.png';
 
     // State variables
     let activeItem: Item | null = null;
@@ -445,7 +445,7 @@
   <!-- Top header with title -->
   <div class="header">
     <img 
-      src={logo} 
+      src={logo}
       alt="Team 2554 Logo" 
       class="h-10 w-auto mr-3"
     />
