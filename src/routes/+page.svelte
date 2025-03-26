@@ -434,25 +434,25 @@
   <title>Team 2554 Inventory Management</title>
   <style>
   :root {
-    --background: #161616; /* Slightly darker than screenshot */
-    --primary: #1e1e1e;
-    --primary-hover: #2a2e33;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
+    --background: #ffffff;
+    --primary: #f4f4f4;
+    --primary-hover: #e0e0e0;
+    --text-primary: #000000;
+    --text-secondary: #666666;
     --text-dark: #000000;
-    --disabled-bg: #2a2e33;
-    --disabled-border: #383838;
-    --disabled-text: #5a5a5a;
-    --header-bg: #161616; /* Matches background */
-    --sidebar-bg: #1e1e1e; /* Matches dark sidebar in screenshot */
-    --selected-bg: #2f2f2f;
-    --table-header-bg: #252525;
-    --table-row-bg: #1e1e1e;
-    --table-alternate-row-bg: #1a1a1a; /* Slightly darker alternate row */
-    --button-bg: #1e1e1e; /* Matches sidebar */
-    --button-hover-bg: #2a2e33;
-    --border-color: #2a2e33;
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --disabled-bg: #f0f0f0;
+    --disabled-border: #d0d0d0;
+    --disabled-text: #999999;
+    --header-bg: #ffffff;
+    --sidebar-bg: #f9f9f9;
+    --selected-bg: #e6e6e6;
+    --table-header-bg: #f0f0f0;
+    --table-row-bg: #ffffff;
+    --table-alternate-row-bg: #f9f9f9;
+    --button-bg: #f4f4f4;
+    --button-hover-bg: #e0e0e0;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
   }
 
   body {
