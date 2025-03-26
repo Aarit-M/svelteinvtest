@@ -5,7 +5,6 @@
     import { Input } from '$lib/components/ui/input';
     import ThemeToggle from './ThemeToggle.svelte';
     const logo = '/2554_logo.png';
-
     export let searchQuery = '';
     export let selectedItems: string[] = [];
   
@@ -41,7 +40,7 @@
     }
 </script>
   
-<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground flex items-center justify-between px-4 py-3 shadow-md">
+<header class="sticky top-0 z-50 w-full bg-primary text-primary-foreground grid grid-cols-3 items-center px-4 py-3 shadow-md">
   <div class="flex items-center">
     <img 
       src={logo} 
@@ -52,7 +51,7 @@
     <h1 class="text-xl font-semibold sm:hidden">Inventory</h1>
   </div>
   
-  <div class="flex items-center gap-3">
+  <div class="flex items-center justify-center gap-3">
     <div class="relative">
       <Input 
         type="text"
@@ -63,9 +62,10 @@
       />
       <Icon icon="material-symbols:search" class="h-4 w-4 absolute left-2.5 top-2.5 text-primary-foreground/60" />
     </div>
-
+  </div>
+  
+  <div class="flex items-center justify-end gap-3">
     <ThemeToggle />
-
     <Button
       variant="ghost"
       size="icon"
@@ -75,9 +75,7 @@
     >
       <Icon icon="material-symbols:help" class="h-5 w-5" />
     </Button>
-  </div>
-  
-  <div class="flex-1 mx-4 flex items-center justify-center">
+    
     {#if selectedItems.length > 0}
       <div class="flex items-center gap-2">
         <span class="mr-1 text-sm">{selectedItems.length} Selected</span>
@@ -124,4 +122,3 @@
     {/if}
   </div>
 </header>
-  
