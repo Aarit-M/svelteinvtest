@@ -29,6 +29,8 @@
     let cameraActive = false;
     let mediaStream: MediaStream | null = null;
     let fileInput: HTMLInputElement;
+    let animationFrameId: number | null = null;
+    let camError: string | null = null;
   
     const MEASUREMENT_TYPES = [
       { label: 'None', value: '' },
@@ -59,66 +61,99 @@
     
     async function startCamera() {
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error("Camera not supported in this browser");
-        }
+        camError = null;
         
+        // First ensure we clean up any existing streams
+        stopCamera();
+        
+        console.log("Requesting camera access...");
         mediaStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          } 
+          video: { facingMode: 'environment' },
+          audio: false
         });
         
-        if (videoElement) {
-          videoElement.srcObject = mediaStream;
-          cameraActive = true;
+        if (!videoElement) {
+          console.error("Video element not found");
+          camError = "Camera element not initialized";
+          return;
         }
+        
+        videoElement.srcObject = mediaStream;
+        videoElement.play();
+        cameraActive = true;
+        
+        console.log("Camera started successfully");
       } catch (err) {
         console.error("Error accessing camera: ", err);
+        camError = "Unable to access camera. Please check permissions.";
         toast.error("Unable to access camera. Please check permissions.");
       }
     }
-    
+
     function stopCamera() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      
       if (mediaStream) {
+        console.log("Stopping camera stream");
         mediaStream.getTracks().forEach(track => track.stop());
         if (videoElement && videoElement.srcObject) {
           videoElement.srcObject = null;
         }
         mediaStream = null;
-        cameraActive = false;
       }
+      
+      cameraActive = false;
     }
     
     function capturePhoto() {
-      if (videoElement && canvasElement && cameraActive) {
-        const context = canvasElement.getContext('2d');
-        
-        if (context) {
-          canvasElement.width = videoElement.videoWidth;
-          canvasElement.height = videoElement.videoHeight;
-          context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-          
-          try {
-            // Compress image for storage efficiency
-            const imageData = canvasElement.toDataURL('image/jpeg', 0.7);
-            imageSrc = imageData;
-            showCamera = false;
-            stopCamera();
-            toast.success("Photo captured successfully");
-          } catch (err) {
-            console.error("Error capturing photo: ", err);
-            toast.error("Failed to capture photo");
-          }
+      if (!videoElement || !canvasElement) {
+        console.error("Video or canvas element not found");
+        toast.error("Camera not properly initialized");
+        return;
+      }
+      
+      if (!cameraActive) {
+        console.error("Camera not active");
+        toast.error("Camera not active, please try again");
+        return;
+      }
+      
+      try {
+        const ctx = canvasElement.getContext('2d');
+        if (!ctx) {
+          console.error("Could not get canvas context");
+          toast.error("Failed to initialize photo capture");
+          return;
         }
+        
+        // Set canvas dimensions to match video
+        canvasElement.width = videoElement.videoWidth || 640;
+        canvasElement.height = videoElement.videoHeight || 480;
+        
+        // Draw the current video frame to the canvas
+        ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        
+        // Get the image data as a data URL
+        const imageData = canvasElement.toDataURL('image/jpeg', 0.9);
+        
+        // Set the captured image
+        imageSrc = imageData;
+        showCamera = false;
+        stopCamera();
+        
+        toast.success("Photo captured successfully");
+      } catch (err) {
+        console.error("Error capturing photo: ", err);
+        toast.error("Failed to capture photo");
       }
     }
     
     function handleShowCamera() {
       showCamera = true;
-      // Start camera after dialog is open
+      // Only start camera after dialog is fully open
       setTimeout(() => {
         startCamera();
       }, 300);
@@ -347,21 +382,27 @@
     
     <div class="space-y-4">
       <div class="relative bg-black rounded-md aspect-video flex items-center justify-center overflow-hidden">
-        {#if cameraActive}
-          <!-- svelte-ignore a11y-media-has-caption -->
-          <video 
-            bind:this={videoElement} 
-            autoplay 
-            playsinline 
-            class="w-full h-full object-cover"
-          ></video>
-        {:else}
-          <div class="text-neutral-content p-4 text-center">
-            <Camera class="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>Accessing camera...</p>
+        <!-- Simple video element like in reference code -->
+        <video bind:this={videoElement} autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <canvas bind:this={canvasElement} style="display:none;"></canvas>
+        
+        {#if !cameraActive && !camError}
+          <div class="absolute inset-0 flex justify-center items-center bg-black/70 text-white">
+            <div class="text-center">
+              <Camera class="h-8 w-8 mx-auto mb-2 opacity-80" />
+              <p class="text-lg">Accessing camera...</p>
+            </div>
           </div>
         {/if}
-        <canvas bind:this={canvasElement} class="hidden"></canvas>
+        
+        {#if camError}
+          <div class="absolute inset-0 flex justify-center items-center bg-black/70 text-white">
+            <div class="text-center">
+              <p class="text-red-400 font-semibold">{camError}</p>
+              <p class="text-sm mt-2">Please check your camera permissions</p>
+            </div>
+          </div>
+        {/if}
       </div>
       
       <div class="flex gap-2">
@@ -383,3 +424,5 @@
     </div>
   </Dialog.Content>
 </Dialog.Root>
+
+
