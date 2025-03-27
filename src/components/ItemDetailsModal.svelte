@@ -22,7 +22,6 @@
     let showFullImage = false;
     let showCamera = false;
     
-    // Camera functionality
     let videoElement: HTMLVideoElement;
     let canvasElement: HTMLCanvasElement;
     let cameraActive = false;
@@ -30,7 +29,6 @@
     let fileInput: HTMLInputElement;
     let camError: string | null = null;
     
-    // Start camera
     async function handleTakePhoto() {
       showCamera = true;
       setTimeout(() => {
@@ -42,7 +40,6 @@
       try {
         camError = null;
         
-        // First ensure we clean up any existing streams
         stopCamera();
         
         console.log("Requesting camera access...");
@@ -103,14 +100,11 @@
           return;
         }
         
-        // Set canvas dimensions to match video
         canvasElement.width = videoElement.videoWidth || 640;
         canvasElement.height = videoElement.videoHeight || 480;
         
-        // Draw the current video frame to the canvas
         ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
         
-        // Get the image data as a data URL
         const imageData = canvasElement.toDataURL('image/jpeg', 0.9);
         
         if (item) {
@@ -134,7 +128,6 @@
       showCamera = false;
     }
     
-    // File upload functionality
     function handleUploadImage() {
       if (fileInput) {
         fileInput.click();
@@ -146,13 +139,11 @@
       if (target.files && target.files[0]) {
         const file = target.files[0];
         
-        // Check file type
         if (!file.type.match('image.*')) {
           toast.error("Please select an image file");
           return;
         }
         
-        // Check file size (limit to 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast.error("Image too large. Please select an image under 5MB");
           return;
@@ -193,13 +184,11 @@
       return `${size} ${unitMap[unit] || unit}`;
     }
 
-    // Function to get image src with fallback to placeholder
     function getItemImage(item: Item | null): string {
       if (!item) return getPlaceholderImage('item');
       return item.image || getPlaceholderImage('item', item.itemName);
     }
     
-    // Open edit modal
     function openEditModal() {
       showEditModal = true;
     }
@@ -213,12 +202,6 @@
           <span class="truncate">{item.itemName}</span>
         </Dialog.Title>
       </Dialog.Header>
-      <button 
-        on:click={onClose} 
-        class="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-      >
-        <X class="h-4 w-4" />
-      </button>
       
       <div class="space-y-6 pt-2">
         <Card class="overflow-hidden border shadow-sm">
@@ -251,7 +234,6 @@
                 Upload
               </Button>
               
-              <!-- Hidden file input -->
               <input 
                 type="file" 
                 bind:this={fileInput}

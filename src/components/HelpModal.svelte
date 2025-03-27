@@ -17,12 +17,6 @@
         Inventory Management Help
       </Dialog.Title>
     </Dialog.Header>
-    <button 
-      on:click={onClose} 
-      class="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-    >
-      <X class="h-4 w-4" />
-    </button>
 
     <div class="space-y-6 pt-4">
       <Card>

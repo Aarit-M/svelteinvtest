@@ -10,7 +10,6 @@
   
     const dispatch = createEventDispatcher();
   
-    // Sorting state
     let sortColumn: string | null = 'itemName';
     let sortDirection: 'asc' | 'desc' = 'asc';
   
@@ -24,7 +23,6 @@
     }
   
     function handleSelectItem(itemId: string, event: MouseEvent) {
-      // Stop propagation to prevent row click from triggering
       event.stopPropagation();
       
       if (selectedItems.includes(itemId)) {
@@ -49,9 +47,8 @@
       dispatch('viewItem', item);
     }
     
-    // Functions to view item photo
     function viewItemPhoto(item: Item, event: MouseEvent) {
-      event.stopPropagation(); // Prevent row click
+      event.stopPropagation(); 
       dispatch('viewPhoto', item);
     }
     
@@ -63,13 +60,11 @@
       }
     }
     
-    // Get a placeholder image if the item doesn't have one
     function getItemImage(item: Item): string {
       if (item.image) return item.image;
       return getPlaceholderImage('item', item.itemName);
     }
   
-    // Sort items based on column and direction
     $: sortedItems = [...items].sort((a, b) => {
       if (!sortColumn) return 0;
       
@@ -98,16 +93,13 @@
       return sortDirection === 'asc' ? 'material-symbols:keyboard-arrow-down' : 'material-symbols:keyboard-arrow-up';
     }
     
-    // Determine checkbox state: checked, unchecked, or indeterminate
     $: allChecked = items.length > 0 && selectedItems.length === items.length;
     $: indeterminate = selectedItems.length > 0 && selectedItems.length < items.length;
     
-    // Handle row click function
     function handleRowClick(item: Item) {
       viewItemDetails(item);
     }
     
-    // Handle keyboard events for accessibility
     function handleKeyDown(e: KeyboardEvent, item: Item) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -115,7 +107,6 @@
       }
     }
     
-    // Handle image error
     function handleImageError(event: Event) {
       const imgElement = event.target as HTMLImageElement;
       if (imgElement) {
@@ -128,9 +119,9 @@
     <Table.Root>
       <Table.Header class="bg-gray-100 dark:bg-gray-800">
         <Table.Row>
-          <Table.Head class="w-16 pl-4">
+          <Table.Head class="w-16 pl-4 pr-2">
             <button 
-              class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+              class="flex h-5 w-5 items-center justify-center rounded-sm border border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm"
               class:bg-primary={allChecked}
               class:text-primary-foreground={allChecked}
               class:indeterminate={indeterminate}
@@ -138,9 +129,9 @@
               aria-label="Select all items"
             >
               {#if allChecked}
-                <Icon icon="material-symbols:check" class="h-3 w-3" />
+                <Icon icon="material-symbols:check" class="h-4 w-4" />
               {:else if indeterminate}
-                <Icon icon="material-symbols:horizontal-rule" class="h-3 w-3" />
+                <Icon icon="material-symbols:horizontal-rule" class="h-4 w-4" />
               {/if}
             </button>
           </Table.Head>
@@ -199,17 +190,17 @@
               tabindex={0}
               role="button"
             >
-              <Table.Cell class="px-4 py-2">
+              <Table.Cell class="pl-4 pr-2 py-2">
                 <div on:click|stopPropagation>
                   <button 
-                    class="flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+                    class="flex h-5 w-5 items-center justify-center rounded-sm border border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm"
                     class:bg-primary={selectedItems.includes(item.id)}
                     class:text-primary-foreground={selectedItems.includes(item.id)}
                     on:click={(e) => handleSelectItem(item.id, e)}
                     aria-label={`Select ${item.itemName}`}
                   >
                     {#if selectedItems.includes(item.id)}
-                      <Icon icon="material-symbols:check" class="h-3 w-3" />
+                      <Icon icon="material-symbols:check" class="h-4 w-4" />
                     {/if}
                   </button>
                 </div>
@@ -246,7 +237,13 @@
   
 <style>
   .indeterminate {
-    background-color: hsl(var(--primary) / 0.5);
+    background-color: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
+  }
+  
+  /* Add visible styles for checkbox focus state */
+  button:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
   }
 </style>

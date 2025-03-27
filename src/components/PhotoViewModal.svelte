@@ -8,7 +8,6 @@
     export let onClose: () => void;
     export let item: Item | null = null;
     
-    // Function to get image src with fallback to placeholder
     function getItemImage(): string {
       if (!item) return getPlaceholderImage('item');
       return item.image || getPlaceholderImage('item', item.itemName);

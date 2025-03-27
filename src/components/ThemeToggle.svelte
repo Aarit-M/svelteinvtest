@@ -17,12 +17,10 @@
   }
 
   onMount(() => {
-    // Get saved theme from localStorage or use system preference
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       theme = savedTheme;
     } else {
-      // Check for system dark mode preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       theme = prefersDark ? 'dark' : 'light';
       localStorage.setItem('theme', theme);

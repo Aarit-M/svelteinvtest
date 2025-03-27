@@ -32,7 +32,6 @@
       onClose();
     }
   
-    // Helper function to recursively render containers
     function renderContainers(containers: Container[], level = 0): Array<{
       container: Container;
       isSelected: boolean;
@@ -48,7 +47,6 @@
     }> {
       return containers
         .map(container => {
-          // Get icon based on level
           const isOutline = level % 2 !== 0;
           const baseIcon = isOutline ? "folder-outline-rounded" : "folder-rounded";
           
@@ -56,9 +54,7 @@
           const locationNameLower = container.containerName.toLowerCase();
           const searchTermLower = searchTerm.toLowerCase();
           
-          // Filter by search term
           if (searchTerm && !locationNameLower.includes(searchTermLower)) {
-            // Still render this container if any of its children match
             const hasMatchingChild = container.children && container.children.some(child => 
               child.containerName.toLowerCase().includes(searchTermLower)
             );
@@ -111,12 +107,6 @@
           Group {selectedItems.length} Items
         </DialogTitle>
       </DialogHeader>
-      <button 
-        on:click={onClose} 
-        class="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-      >
-        <X class="h-4 w-4" />
-      </button>
   
       <div class="space-y-4 pt-4">
         <div class="space-y-2">
@@ -159,10 +149,7 @@
                   
                   {#if item.children && item.children.length > 0}
                     <div class="ml-4">
-                      <!-- Recursively render children components -->
                       {#each item.children as child}
-                        <!-- This part would be recursive in React, but in Svelte we need a different approach -->
-                        <!-- For simplicity, we'll only show 2 levels deep in this example -->
                         <div 
                           class={cn(
                             "flex items-center py-2 px-2 cursor-pointer rounded-md mb-1",

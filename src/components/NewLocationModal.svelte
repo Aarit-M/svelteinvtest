@@ -22,7 +22,6 @@
     let fileInput: HTMLInputElement;
     let description = '';
     
-    // For camera functionality
     let showCamera = false;
     let videoElement: HTMLVideoElement;
     let canvasElement: HTMLCanvasElement;
@@ -42,13 +41,11 @@
       if (target.files && target.files[0]) {
         const file = target.files[0];
         
-        // Check file type
         if (!file.type.match('image.*')) {
           toast.error("Please select an image file");
           return;
         }
         
-        // Check file size (limit to 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast.error("Image too large. Please select an image under 5MB");
           return;
@@ -80,7 +77,6 @@
       try {
         camError = null;
         
-        // First ensure we clean up any existing streams
         stopCamera();
         
         console.log("Requesting camera access...");
@@ -141,14 +137,11 @@
           return;
         }
         
-        // Set canvas dimensions to match video
         canvasElement.width = videoElement.videoWidth || 640;
         canvasElement.height = videoElement.videoHeight || 480;
         
-        // Draw the current video frame to the canvas
         ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
         
-        // Get the image data as a data URL
         const imageData = canvasElement.toDataURL('image/jpeg', 0.9);
         
         imageSrc = imageData;
@@ -164,7 +157,6 @@
     
     function handleShowCamera() {
       showCamera = true;
-      // Start camera after dialog is open
       setTimeout(() => {
         startCamera();
       }, 300);

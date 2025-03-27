@@ -19,7 +19,6 @@
     import { browser } from '$app/environment';
     const logo = '/2554_logo.png';
 
-    // State variables
     let activeItem: Item | null = null;
     let showItemDetails = false;
     let showEditModal = false;
@@ -36,7 +35,6 @@
     let allItemsSelected = false;
     let currentPhotoItem: Item | null = null;
   
-    // Mock data for containers and items
     const mockContainers: Container[] = [
       {
         id: 'trailers',
@@ -148,11 +146,9 @@
       }
     ];
 
-  // Initialize data right away
   containers = mockContainers;
 
   onMount(() => {
-    // Initialize filtered items with the items from Box 1
     const box1 = findContainerById(containers, 'box-1');
     if (box1) {
       filteredItems = box1.items;
@@ -160,7 +156,6 @@
     }
   });
 
-  // Helper function to find a container by ID in the nested structure
   function findContainerById(containers: Container[], id: string): Container | null {
     for (const container of containers) {
       if (container.id === id) {
@@ -176,7 +171,6 @@
     return null;
   }
 
-  // Toggle container expanded state
   function toggleContainer(id: string) {
     containers = containers.map(container => {
       if (container.id === id) {
@@ -199,10 +193,8 @@
     });
   }
 
-  // Select a container
   function selectContainer(id: string) {
     selectedContainer = id;
-    // Clear selected items when changing containers
     selectedItems = [];
     allItemsSelected = false;
     
@@ -220,13 +212,10 @@
       return;
     }
   
-    // Generate a unique ID
     const itemId = `item-${Date.now()}`;
     
-    // Find the selected container
     const container = findContainerById(containers, selectedContainer);
     if (container) {
-      // Create the new item
       const item: Item = {
         id: itemId,
         itemName: newItem.itemName || 'New Item',
@@ -234,10 +223,8 @@
         description: newItem.description
       };
       
-      // Add the item to the container
       container.items = [...(container.items || []), item];
       
-      // Update filtered items if we're viewing the container
       if (selectedContainer === container.id) {
         filteredItems = [...filteredItems, item];
       }
@@ -257,7 +244,6 @@
         item.id === updatedItem.id ? updatedItem : item
       );
       
-      // Update filtered items
       filteredItems = container.items;
       
       toast.success("Item updated successfully");
@@ -275,7 +261,6 @@
     if (container && container.items) {
       container.items = container.items.filter(item => !selectedItems.includes(item.id));
       
-      // Update filtered items
       filteredItems = container.items;
       
       toast.success(`${selectedItems.length} items deleted successfully`);
@@ -290,7 +275,6 @@
       return;
     }
     
-    // If a parent container is selected, add as child, otherwise add to root
     if (selectedContainer) {
       const parentContainer = findContainerById(containers, selectedContainer);
       if (parentContainer) {
@@ -313,7 +297,6 @@
         toast.success("Location added successfully");
       }
     } else {
-      // Add to root
       const newContainer: Container = {
         id: `container-${Date.now()}`,
         containerName: newLocation.containerName,
@@ -341,29 +324,24 @@
     const currentContainer = findContainerById(containers, selectedContainer || '');
     if (!currentContainer || !currentContainer.items) return;
     
-    // Get the selected items from the current container
     const itemsToMove = currentContainer.items.filter(item => 
       selectedItems.includes(item.id)
     );
     
-    // Remove the items from the current container
     currentContainer.items = currentContainer.items.filter(item => 
       !selectedItems.includes(item.id)
     );
     
-    // Update items' location
     const updatedItems = itemsToMove.map(item => ({
       ...item,
       itemLocation: { path: targetContainer.containerLocation.path }
     }));
     
-    // Add the items to the target container
     if (!targetContainer.items) {
       targetContainer.items = [];
     }
     targetContainer.items = [...targetContainer.items, ...updatedItems];
     
-    // Update filtered items
     filteredItems = currentContainer.items;
     
     toast.success(`${selectedItems.length} items moved successfully`);
@@ -372,7 +350,6 @@
     showGroupModal = false;
   }
   
-  // Toggle item selection
   function toggleSelectItem(id: string) {
     if (selectedItems.includes(id)) {
       selectedItems = selectedItems.filter(item => item !== id);
@@ -385,7 +362,6 @@
     }
   }
   
-  // Toggle select all items
   function toggleSelectAll() {
     if (allItemsSelected) {
       selectedItems = [];
@@ -395,35 +371,29 @@
     allItemsSelected = !allItemsSelected;
   }
   
-  // View item details
   function viewItemDetails(item: Item) {
     activeItem = item;
     showItemDetails = true;
   }
   
-  // View item photo
   function viewItemPhoto(item: Item) {
     currentPhotoItem = item;
     showPhotoModal = true;
   }
   
-  // Handle item click from FolderTree
   function handleItemClick(item: Item) {
     viewItemDetails(item);
   }
   
-  // Check if a container should show the info icon
   function shouldShowInfoIcon(id: string): boolean {
     const container = findContainerById(containers, id);
     return Boolean(container?.image || container?.description);
   }
 
-  // Check if item is selected
   function isItemSelected(id: string): boolean {
     return selectedItems.includes(id);
   }
 
-  // Function to filter items based on search query
   function filterItemsBySearch(items: Item[], query: string): Item[] {
     if (!query.trim()) return items;
     
@@ -435,14 +405,12 @@
     );
   }
 
-  // Update filtered items when search query changes
   function handleSearchChange(newQuery: string) {
     searchQuery = newQuery;
     
     if (selectedContainer) {
       const container = findContainerById(containers, selectedContainer);
       if (container && container.items) {
-        // Apply search filter
         filteredItems = filterItemsBySearch(container.items, searchQuery);
       }
     }
@@ -483,7 +451,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Global Reset */
 button, input, select, h1, h2, h3, h4, h5, * {
   box-sizing: border-box;
   margin: 0;
@@ -494,7 +461,6 @@ button, input, select, h1, h2, h3, h4, h5, * {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Sidebar */
 .rectangle-1 {
   background-color: var(--sidebar-bg);
   color: var(--text-primary);
@@ -502,14 +468,12 @@ button, input, select, h1, h2, h3, h4, h5, * {
   padding: 10px;
 }
 
-/* Header */
 header {
   background-color: var(--header-bg);
   padding: 10px;
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Buttons */
 .button {
   background-color: var(--button-bg);
   color: var(--text-primary);
@@ -523,12 +487,10 @@ header {
   background-color: var(--button-hover-bg);
 }
 
-/* Selected Row */
 .selected {
   background-color: var(--selected-bg);
 }
 
-/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -558,7 +520,6 @@ td {
   padding: 10px;
 }
 
-/* Inputs */
 input {
   background-color: var(--primary);
   color: var(--text-primary);
@@ -571,7 +532,6 @@ input::placeholder {
   color: var(--text-secondary);
 }
 
-/* Disabled State */
 .disabled {
   background-color: var(--disabled-bg);
   color: var(--disabled-text);
@@ -582,7 +542,6 @@ input::placeholder {
 </svelte:head>
 
 <div class="app-container">
-  <!-- Top header with search, theme toggle and help button -->
   <Header
     {searchQuery}
     selectedItems={selectedItems}
@@ -596,7 +555,6 @@ input::placeholder {
   />
   
   <div class="main-content">
-    <!-- Sidebar - Container tree -->
     <div class="sidebar">
       <FolderTree
         containers={containers}
@@ -604,27 +562,22 @@ input::placeholder {
         onContainerSelect={(id) => selectContainer(id)}
         onContainerToggle={(id) => toggleContainer(id)}
         onItemDrop={(containerId, itemId) => {
-          // Handle item drop - move an item to a different container
           const sourceContainer = findContainerById(containers, selectedContainer || '');
           const targetContainer = findContainerById(containers, containerId);
           
           if (!sourceContainer || !targetContainer || !sourceContainer.items) return;
           
-          // Find the item
           const item = sourceContainer.items.find(item => item.id === itemId);
           if (!item) return;
           
-          // Remove from source container
           sourceContainer.items = sourceContainer.items.filter(i => i.id !== itemId);
           
-          // Add to target container
           if (!targetContainer.items) targetContainer.items = [];
           targetContainer.items = [...targetContainer.items, {
             ...item,
             itemLocation: { path: targetContainer.containerLocation.path }
           }];
           
-          // Update filtered items if we're looking at the source container
           if (selectedContainer === sourceContainer.id) {
             filteredItems = sourceContainer.items;
           }
@@ -635,11 +588,9 @@ input::placeholder {
           });
         }}
         onViewAllItems={() => {
-          // Display all items from all containers
           selectedContainer = null;
           const allItems: Item[] = [];
           
-          // Recursive function to gather all items from all containers
           function collectItems(containersArray: Container[]) {
             if (!containersArray || !containersArray.length) return;
             
@@ -661,9 +612,7 @@ input::placeholder {
       />
     </div>
   
-    <!-- Main content area -->
     <div class="content-area">
-      <!-- Table header showing current selected location -->
       <div class="table-header mb-4">
         <h2 class="text-xl font-semibold">
           {#if selectedContainer}
@@ -699,7 +648,6 @@ input::placeholder {
     </div>
   </div>
   
-<!-- Modals -->
   <ItemDetailsModal 
     open={showItemDetails}
     onClose={() => showItemDetails = false}
@@ -760,15 +708,13 @@ input::placeholder {
     background-color: var(--background);
   }
   
-  /* Main content */
   .main-content {
     display: flex;
     flex: 1;
-    height: calc(100vh - 60px); /* Adjust for header height */
+    height: calc(100vh - 60px);
     overflow: hidden;
   }
   
-  /* Sidebar */
   .sidebar {
     width: 300px;
     background-color: var(--sidebar-bg);
@@ -777,7 +723,6 @@ input::placeholder {
     padding: 0.5rem 0;
   }
   
-  /* Content area */
   .content-area {
     flex: 1;
     display: flex;
@@ -785,7 +730,6 @@ input::placeholder {
     overflow: hidden;
   }
   
-  /* Empty state */
   .empty-state {
     display: flex;
     flex-direction: column;

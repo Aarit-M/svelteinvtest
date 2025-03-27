@@ -26,17 +26,14 @@
     
     const dispatch = createEventDispatcher();
     
-    // Modal state for container information
     let showInfoModal = false;
     let selectedContainerInfo: Container | null = null;
-    let editMode = false; // Track if we're in edit mode within the info modal
+    let editMode = false;
     
-    // For editing containers
     let editedContainerName = '';
     let editedContainerDescription = '';
     let editedContainerImage: string | undefined = undefined;
     
-    // For image upload
     let fileInput: HTMLInputElement;
     let showCamera = false;
     let videoElement: HTMLVideoElement;
@@ -45,30 +42,23 @@
     let mediaStream: MediaStream | null = null;
     let camError: string | null = null;
     
-    // Animation duration
     const flipDurationMs = 300;
     
-    // Track expanded containers with a Set for easier lookup
     let expandedContainers = new Set<string>();
     
-    // Add these new variables to track drag and drop state
     let draggedContainerId: string | null = null;
     let isDragging = false;
     
-    // Initialize with all containers expanded by default
     onMount(() => {
-      // Expand all top-level containers by default
       containers.forEach(container => {
         expandedContainers.add(container.id);
         
-        // Also expand all child containers
         if (container.children && container.children.length > 0) {
           expandAllChildren(container.children);
         }
       });
     });
     
-    // Recursively expand all children
     function expandAllChildren(children: Container[]) {
       children.forEach(child => {
         expandedContainers.add(child.id);
@@ -78,14 +68,13 @@
       });
     }
     
-    // Function to show container info modal
     function showContainerInfo(container: Container, event: Event) {
       event.stopPropagation();
       selectedContainerInfo = container;
       editedContainerName = container.containerName;
       editedContainerDescription = container.description || '';
       editedContainerImage = container.image;
-      editMode = false; // Start in view mode
+      editMode = false;
       showInfoModal = true;
     }
     
@@ -95,14 +84,13 @@
       editedContainerName = container.containerName;
       editedContainerDescription = container.description || '';
       editedContainerImage = container.image;
-      editMode = true; // Start in edit mode
+      editMode = true;
       showInfoModal = true;
     }
     
     function handleEditContainer() {
       if (!selectedContainerInfo || !editedContainerName.trim()) return;
       
-      // Find and update the container in the containers array
       const updateNestedContainer = (containers: Container[]): Container[] => {
         return containers.map(container => {
           if (container.id === selectedContainerInfo!.id) {
@@ -126,34 +114,28 @@
       };
       
       containers = updateNestedContainer(containers);
-      editMode = false; // Switch back to view mode after saving
+      editMode = false;
       toast.success("Location updated successfully");
     }
     
-    // Helper to check if a container should show info icon
     function shouldShowInfoIcon(container: Container): boolean {
-      // Always show info icon - temporarily for testing
       return true;
     }
     
-    // Helper to get indent style for nested levels
     function getIndentStyle(level: number): string {
       return `padding-left: ${level * 16}px;`;
     }
     
-    // Function to get container image or default
     function getContainerImage(container: Container): string {
       return container.image || getPlaceholderImage('container', container.containerName);
     }
     
-    // Function to handle container selection
     function handleSelect(id: string) {
       selectedContainer = id;
       onContainerSelect(id);
       dispatch('selectContainer', id);
     }
     
-    // Function to toggle container expanded state
     function toggleContainer(id: string, event?: Event) {
       if (event) event.stopPropagation();
       
@@ -164,40 +146,33 @@
       }
       
       onContainerToggle(id);
-      expandedContainers = expandedContainers; // Trigger reactivity
+      expandedContainers = expandedContainers;
     }
     
-    // Function to get accordion values based on expanded containers
     function getAccordionValues(containerId: string): string[] {
       return expandedContainers.has(containerId) ? [containerId] : [];
     }
     
-    // Function to handle accordion value change
     function handleAccordionValueChange(containerId: string, values: string[]) {
       if (values.includes(containerId)) {
         expandedContainers.add(containerId);
       } else {
         expandedContainers.delete(containerId);
       }
-      expandedContainers = expandedContainers; // Trigger reactivity
+      expandedContainers = expandedContainers;
       onContainerToggle(containerId);
     }
     
-    // Fix TypeScript errors for accordion value change
     function safeHandleAccordionValueChange(containerId: string, values: unknown) {
-      // Ensure values is an array of strings
       const valueArray = Array.isArray(values) ? values as string[] : [];
       handleAccordionValueChange(containerId, valueArray);
     }
     
-    // DnD functions for containers with improved cross-level movement
     function handleContainerDndConsider(event: any) {
       const detail = event.detail;
       
-      // Track that we're currently dragging
       isDragging = true;
       
-      // Store the ID of the container being dragged
       const draggedContainer = detail.items.find((item: Container) => 
         !containers.some(c => c.id === item.id)
       );
@@ -206,22 +181,17 @@
         draggedContainerId = draggedContainer.id;
       }
       
-      // Update the top-level containers state
       containers = detail.items;
     }
     
     function handleContainerDndFinalize(event: any) {
       const detail = event.detail;
       
-      // Reset drag state
       isDragging = false;
       
-      // Update the container state
       containers = detail.items;
       
-      // Find the dragged container to check if it moved from a nested position
       if (draggedContainerId) {
-        // This ensures we don't try to leave the dragged container in its original parent
         removeNestedContainer(containers, draggedContainerId);
         draggedContainerId = null;
       }
@@ -229,15 +199,12 @@
       toast.success("Container moved successfully");
     }
     
-    // Update the nested container DnD functions
     function handleNestedContainerDndConsider(event: any, parentContainer: Container) {
       const detail = event.detail;
       
-      // Track that we're currently dragging
       isDragging = true;
       
       if (parentContainer && parentContainer.children) {
-        // Find the container that's being dragged (if any)
         const draggedContainer = detail.items.find((item: Container) => 
           !parentContainer.children!.some(c => c.id === item.id)
         );
@@ -245,14 +212,11 @@
         if (draggedContainer) {
           draggedContainerId = draggedContainer.id;
           
-          // Update parent reference for the dragged container
           draggedContainer.parentId = parentContainer.id;
         }
         
-        // Update the children of this parent
         parentContainer.children = detail.items;
         
-        // Trigger reactivity
         containers = [...containers];
       }
     }
@@ -260,53 +224,41 @@
     function handleNestedContainerDndFinalize(event: any, parentContainer: Container) {
       const detail = event.detail;
       
-      // Reset drag state
       isDragging = false;
       
       if (parentContainer && parentContainer.children) {
-        // If we have a dragged container from another parent
         if (draggedContainerId) {
-          // Update its parent ID
           const draggedContainer = detail.items.find((item: Container) => item.id === draggedContainerId);
           if (draggedContainer) {
             draggedContainer.parentId = parentContainer.id;
             
-            // Remove it from its previous parent's children
             removeNestedContainer(containers, draggedContainerId);
           }
           draggedContainerId = null;
         }
         
-        // Set the children array for this parent
         parentContainer.children = detail.items;
         
-        // Trigger reactivity
         containers = [...containers];
         
         toast.success("Container moved successfully");
       }
     }
     
-    // Helper to recursively remove a nested container from its original parent
     function removeNestedContainer(containers: Container[], containerId: string): boolean {
       for (let i = 0; i < containers.length; i++) {
         const container = containers[i];
         
-        // Skip if this is the container we're looking for (shouldn't happen at top level)
         if (container.id === containerId) continue;
         
-        // If this container has children, check them
         if (container.children && container.children.length > 0) {
-          // See if our target container is a direct child
           const childIndex = container.children.findIndex(child => child.id === containerId);
           
           if (childIndex !== -1) {
-            // Remove from this parent's children
             container.children.splice(childIndex, 1);
             return true;
           }
           
-          // If not a direct child, check nested children recursively
           if (removeNestedContainer(container.children, containerId)) {
             return true;
           }
@@ -316,7 +268,6 @@
       return false;
     }
     
-    // DnD functions for items
     function handleItemsDndConsider(event: any, container: Container) {
       const detail = event.detail;
       if (container) {
@@ -328,7 +279,6 @@
     function handleItemsDndFinalize(event: any, container: Container) {
       const detail = event.detail;
       if (container) {
-        // Update items with the correct location path
         const updatedItems = detail.items.map((item: Item) => ({
           ...item,
           itemLocation: { path: container.containerLocation.path }
@@ -340,19 +290,15 @@
       }
     }
     
-    // Handle item click
     function handleItemClick(item: Item) {
       onItemClick(item);
     }
     
-    // Get appropriate folder icon based on level
     function getFolderIcon(container: Container, isSelected: boolean, level: number): string {
-      // Use folder-outline-rounded for odd levels, folder-rounded for even levels
       const isOddLevel = level % 2 !== 0;
       return isOddLevel ? "material-symbols:folder-outline-rounded" : "material-symbols:folder-rounded";
     }
     
-    // Recursive function to render container hierarchy
     function renderContainers(containers: Container[], level = 0): any[] {
       if (!containers || containers.length === 0) return [];
       
@@ -375,7 +321,6 @@
     
     $: renderedContainers = renderContainers(containers);
 
-    // Image upload handling functions
     function handleFileSelect(event: Event) {
       const target = event.target as HTMLInputElement;
       if (!target.files || !target.files[0]) {
@@ -386,14 +331,12 @@
       console.log("File selected, processing...");
       const file = target.files[0];
       
-      // Check file type
       if (!file.type.match('image.*')) {
         console.error("Invalid file type:", file.type);
         toast.error("Please select an image file");
         return;
       }
       
-      // Check file size (limit to 5MB)
       if (file.size > 5 * 1024 * 1024) {
         console.error("File too large:", file.size);
         toast.error("Image too large. Please select an image under 5MB");
@@ -420,7 +363,6 @@
       
       reader.readAsDataURL(file);
       
-      // Reset the input value to allow uploading the same file again
       target.value = '';
     }
 
@@ -438,12 +380,10 @@
       }
     }
 
-    // Camera functionality
     async function startCamera() {
       try {
         camError = null;
         
-        // First ensure we clean up any existing streams
         stopCamera();
         
         console.log("Requesting camera access...");
@@ -504,17 +444,13 @@
           return;
         }
         
-        // Set canvas dimensions to match video
         canvasElement.width = videoElement.videoWidth || 640;
         canvasElement.height = videoElement.videoHeight || 480;
         
-        // Draw the current video frame to the canvas
         ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
         
-        // Get the image data as a data URL
         const imageData = canvasElement.toDataURL('image/jpeg', 0.9);
         
-        // Set the captured image
         editedContainerImage = imageData;
         showCamera = false;
         stopCamera();
@@ -528,7 +464,6 @@
 
     function handleShowCamera() {
       showCamera = true;
-      // Only start camera after dialog is fully open
       setTimeout(() => {
         startCamera();
       }, 300);
@@ -546,7 +481,6 @@
 </script>
   
 <div class="folder-tree">
-  <!-- All Items button at the top -->
   <Button 
     variant="ghost" 
     class="w-full flex items-center justify-start px-3 py-2 mb-2 text-sm"
@@ -556,7 +490,6 @@
     <span>View All Items</span>
   </Button>
 
-  <!-- Main container list -->
   <div class="container-list" use:dndzone={{items: containers, flipDurationMs, type: 'top-level-containers'}} on:consider={handleContainerDndConsider} on:finalize={handleContainerDndFinalize}>
     {#each containers as container (container.id)}
       <div animate:flip={{duration: flipDurationMs}} class="container-wrapper">
@@ -598,7 +531,6 @@
             </div>
             
             <Accordion.Content class="pt-0 pb-0">
-                  <!-- Nested containers -->
                   {#if container.children && container.children.length > 0}
                     <div class="pl-4">
                       <div class="nested-container-list" use:dndzone={{items: container.children, flipDurationMs, type: 'nested-containers'}} on:consider={(e) => handleNestedContainerDndConsider(e, container)} on:finalize={(e) => handleNestedContainerDndFinalize(e, container)}>
@@ -640,7 +572,6 @@
                                 </div>
 
                                 <Accordion.Content class="pt-0 pb-0">
-                                  <!-- Recursively render deeper nested containers -->
                                   {#if childContainer.children && childContainer.children.length > 0}
               <div class="pl-4">
                                       <div class="nested-container-list" use:dndzone={{items: childContainer.children, flipDurationMs, type: 'nested-containers'}} on:consider={(e) => handleNestedContainerDndConsider(e, childContainer)} on:finalize={(e) => handleNestedContainerDndFinalize(e, childContainer)}>
@@ -681,7 +612,6 @@
                                                 </div>
                                                 
                                                 <Accordion.Content class="pt-0 pb-0">
-                                                  <!-- Display items inside this grandchild container -->
                                                   {#if grandChild.items && grandChild.items.length > 0}
                                                     <div class="items-list pl-6" use:dndzone={{items: grandChild.items, flipDurationMs, type: 'items'}} on:consider={(e) => handleItemsDndConsider(e, grandChild)} on:finalize={(e) => handleItemsDndFinalize(e, grandChild)}>
                                                       {#each grandChild.items as item (item.id)}
@@ -706,7 +636,6 @@
                                     </div>
                                   {/if}
                                   
-                                  <!-- Items inside this child container -->
                                   {#if childContainer.items && childContainer.items.length > 0}
                                     <div class="items-list pl-6" use:dndzone={{items: childContainer.items, flipDurationMs, type: 'items'}} on:consider={(e) => handleItemsDndConsider(e, childContainer)} on:finalize={(e) => handleItemsDndFinalize(e, childContainer)}>
                                       {#each childContainer.items as item (item.id)}
@@ -733,7 +662,6 @@
                     </div>
                 {/if}
 
-                  <!-- Items directly in this container -->
                   {#if container.items && container.items.length > 0}
                     <div class="items-list pl-6" use:dndzone={{items: container.items, flipDurationMs, type: 'items'}} on:consider={(e) => handleItemsDndConsider(e, container)} on:finalize={(e) => handleItemsDndFinalize(e, container)}>
                       {#each container.items as item (item.id)}
@@ -754,7 +682,6 @@
             </Accordion.Content>
           </Accordion.Item>
         {:else}
-          <!-- Leaf node (no children) -->
           <div 
                 class="folder-header {selectedContainer === container.id ? 'selected' : ''}"
                 style={getIndentStyle(0)}
@@ -780,7 +707,6 @@
                 </div>
               </div>
 
-              <!-- Items in this leaf container -->
               {#if container.items && container.items.length > 0}
                 <div class="items-list pl-6" use:dndzone={{items: container.items, flipDurationMs, type: 'items'}} on:consider={(e) => handleItemsDndConsider(e, container)} on:finalize={(e) => handleItemsDndFinalize(e, container)}>
                   {#each container.items as item (item.id)}
@@ -796,7 +722,7 @@
                       <span class="truncate text-sm text-muted-foreground">{item.itemName}</span>
                     </div>
                   {/each}
-                </div>
+              </div>
               {/if}
             {/if}
           </div>
@@ -806,7 +732,6 @@
   </div>
 </div>
 
-<!-- Container Info/Edit Modal -->
 <Dialog.Root bind:open={showInfoModal}>
   <Dialog.Content class="sm:max-w-md bg-white dark:bg-gray-950">
     <Dialog.Header>
@@ -824,7 +749,6 @@
     
     {#if selectedContainerInfo}
       {#if editMode}
-        <!-- Edit Mode -->
         <form on:submit|preventDefault={handleEditContainer}>
           <div class="grid gap-4 py-4">
             <div class="space-y-2">
@@ -886,7 +810,6 @@
                       <Icon icon="material-symbols:upload" class="h-5 w-5 mr-2" />
                       Upload Image
                     </Button>
-                    <!-- Hidden file input -->
                     <input 
                       type="file" 
                       bind:this={fileInput}
@@ -908,23 +831,22 @@
           </Dialog.Footer>
         </form>
       {:else}
-        <!-- View Mode -->
-      <div class="space-y-4">
-        {#if getContainerImage(selectedContainerInfo)}
-          <div class="overflow-hidden rounded-md border border-border">
-            <img
-              src={getContainerImage(selectedContainerInfo)}
-              alt={selectedContainerInfo.containerName}
-              class="aspect-video object-cover w-full"
-            />
-          </div>
-        {/if}
-        
-        {#if selectedContainerInfo.description}
-          <div class="text-sm text-muted-foreground">
-            {selectedContainerInfo.description}
-          </div>
-        {/if}
+        <div class="space-y-4">
+          {#if getContainerImage(selectedContainerInfo)}
+            <div class="overflow-hidden rounded-md border border-border">
+              <img
+                src={getContainerImage(selectedContainerInfo)}
+                alt={selectedContainerInfo.containerName}
+                class="aspect-video object-cover w-full"
+              />
+            </div>
+          {/if}
+          
+          {#if selectedContainerInfo.description}
+            <div class="text-sm text-muted-foreground">
+              {selectedContainerInfo.description}
+            </div>
+          {/if}
           
           <Dialog.Footer>
             <div class="flex w-full justify-between">
@@ -943,7 +865,6 @@
   </Dialog.Content>
 </Dialog.Root>
 
-<!-- Camera Modal -->
 {#if showCamera}
 <Dialog.Root open={showCamera} onOpenChange={(isOpen) => !isOpen && handleCameraClose()}>
   <Dialog.Content class="sm:max-w-md animate-fade-in bg-white dark:bg-gray-950">
@@ -953,7 +874,6 @@
     
     <div class="space-y-4">
       <div class="relative bg-black rounded-md aspect-video flex items-center justify-center overflow-hidden">
-        <!-- Simple video element like in reference code -->
         <video bind:this={videoElement} autoplay playsinline muted class="w-full h-full object-cover"></video>
         <canvas bind:this={canvasElement} style="display:none;"></canvas>
         
@@ -1005,8 +925,8 @@
     user-select: none;
     padding: 0.5rem;
     border-radius: 0.375rem;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    box-sizing: border-box; /* Include padding in width calculation */
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
   
   .folder-header {
@@ -1018,7 +938,7 @@
     transition: background-color 0.15s ease;
     margin-bottom: 2px;
     width: 100%;
-    box-sizing: border-box; /* Include padding in width calculation */
+    box-sizing: border-box;
   }
   
   .folder-header:hover {
@@ -1041,14 +961,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0 0.5rem;
-    max-width: calc(100% - 3.5rem); /* Provide more space for the folder name */
+    max-width: calc(100% - 3.5rem);
   }
   
   .info-icon, .edit-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 1; /* Make fully visible */
+    opacity: 1;
     transition: background-color 0.15s ease;
     margin-left: 0.25rem;
     width: 30px;
@@ -1078,14 +998,12 @@
     padding-left: 1.5rem;
   }
   
-  /* Make tree deeper levels have proper padding */
   .nested-container-list {
     padding-left: 0.5rem;
     width: 100%;
-    box-sizing: border-box; /* Include padding in width calculation */
+    box-sizing: border-box;
   }
 
-  /* Add container to properly size the folder tree and prevent overflow */
   .container-list {
     width: 100%;
     box-sizing: border-box;

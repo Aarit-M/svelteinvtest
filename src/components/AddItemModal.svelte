@@ -23,7 +23,6 @@
     let showCamera = false;
     let imageSrc: string | undefined = undefined;
     
-    // For camera functionality
     let videoElement: HTMLVideoElement;
     let canvasElement: HTMLCanvasElement;
     let cameraActive = false;
@@ -43,7 +42,6 @@
     
     onMount(() => {
       return () => {
-        // Make sure to clean up the camera stream when component is destroyed
         stopCamera();
       };
     });
@@ -63,7 +61,6 @@
       try {
         camError = null;
         
-        // First ensure we clean up any existing streams
         stopCamera();
         
         console.log("Requesting camera access...");
@@ -129,17 +126,13 @@
           return;
         }
         
-        // Set canvas dimensions to match video
         canvasElement.width = videoElement.videoWidth || 640;
         canvasElement.height = videoElement.videoHeight || 480;
         
-        // Draw the current video frame to the canvas
         ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
         
-        // Get the image data as a data URL
         const imageData = canvasElement.toDataURL('image/jpeg', 0.9);
         
-        // Set the captured image
         imageSrc = imageData;
         showCamera = false;
         stopCamera();
@@ -153,7 +146,6 @@
     
     function handleShowCamera() {
       showCamera = true;
-      // Only start camera after dialog is fully open
       setTimeout(() => {
         startCamera();
       }, 300);
@@ -169,13 +161,11 @@
       if (target.files && target.files[0]) {
         const file = target.files[0];
         
-        // Check file type
         if (!file.type.match('image.*')) {
           toast.error("Please select an image file");
           return;
         }
         
-        // Check file size (limit to 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast.error("Image too large. Please select an image under 5MB");
           return;
@@ -245,13 +235,6 @@
     <Dialog.Header>
       <Dialog.Title class="text-center text-xl">Add New Item</Dialog.Title>
     </Dialog.Header>
-    <button 
-      on:click={onClose} 
-      class="absolute right-4 top-4 p-1 rounded-full hover:bg-base-300 transition-colors duration-200"
-    >
-      <X class="h-4 w-4" />
-    </button>
-
     <div class="space-y-4 pt-4">
       <div class="space-y-2">
         <Label for="itemName">Item Name</Label>
